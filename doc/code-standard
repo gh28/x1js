@@ -1,0 +1,13 @@
+code standard for html css js
+
+
+lower-case-with-hyphen.html/css/js
+camelCase.html/css/js as module
+camelCase as top-level directory name
+
+2 spaces indent as in html/css/inline-script
+1 tab indent as in pure script
+
+'\n' as line end
+file is utf8 encoded
+file ends with '\n'
