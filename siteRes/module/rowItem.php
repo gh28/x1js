@@ -1,7 +1,7 @@
 <?
   $rowItem = $data;
 ?>
-<div class="rowItem item">
+<div class="rowItem">
   <div class="data"
     data-row-item-id="<?=$rowItem["rowItemId"]?>"
     data-item-id="<?=$rowItem["itemId"]?>"

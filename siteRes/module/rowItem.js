@@ -13,20 +13,21 @@ Module.RowItem = (function() {
 		return $rowItem.find(".data").data();
 	}
 
-	function initialize($rowItem) {
-		var data = getData($rowItem);
-		fill($rowItem, data);
+	function setData($rowItem, data) {
+		if (typeof data === "object") {
+			$rowItem.find(".data").data(data);
+			return true;
+		}
+		return false;
 	}
 
-	function fillData($rowItem, data) {
-		data = data || getData($rowItem);
+	function updateView($rowItem, data) {
+		data = data || getData($rowItem) || {};
 		for (var key in data) {
 			$rowItem.find(".data-" + key).text(data[key]);
 		}
-		$rowItem.find("div.image img").attr("src", data["itemImageUri"]);
+		$rowItem.find(".image img").attr("src", data["itemImageUri"]);
 	}
-
-	var actions = ["view", "modify", "remove"];
 
 	function registerAction($rowItem, action, callback) {
 		// validation
@@ -34,16 +35,19 @@ Module.RowItem = (function() {
 			return false;
 		}
 
-		for (var i, a in actions) {
+		var ACTIONS = ["view", "modify", "remove"];
+
+		for (var i, a in ACTIONS) {
 			if (a === action) {
-				// do register
+				// find, do register
 				action = "action-" + action;
-				var $actionTrigger = $rowItem;
+				var $trigger = $rowItem;
 				if (!$rowItem.hasClass(action) {
-					$actionTrigger = $rowItem.find("." + action);
+					$trigger = $rowItem.find("." + action);
 				}
-				$actionTrigger.off("click").on("click", function(eventObject) {
-					callback() && eventObject.stopPropagation();
+				$trigger.off("click").on("click", function(eventObject) {
+					callback($(eventObject), getData())
+						&& eventObject.stopPropagation();
 				});
 				return true;
 			}
@@ -51,9 +55,25 @@ Module.RowItem = (function() {
 		return false;
 	}
 
+	function inject($rowItem) {
+		if (typeof $rowItem !== "object") {
+			throw new Error("cannot inject into a non-object var");
+		}
+
+		$rowItem.getData = function() {
+			return getData(this);
+		}
+
+		$rowItem.setData = function(data) {
+			setData(this, data) && updateView(this);
+		}
+
+		$rowItem.registerAction = function(actionId, callback) {
+			return registerAction(this, actionId, callback);
+		}
+	}
+
 	return {
-		initialize: initialize,
-		fill: fillData,
-		register: registerAction
+		assimilate: inject,
 	};
 })();
