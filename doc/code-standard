@@ -1,7 +1,7 @@
 code standard for html css js
 
 
-lower-case-with-hyphen.html/css/js
+lower-case-with-hyphen.html/css/js as default
 camelCase.html/css/js as module
 camelCase as top-level directory name
 
