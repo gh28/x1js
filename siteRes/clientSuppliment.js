@@ -1,16 +1,3 @@
-/**
- * as a suppliment to js, not rely on any lib
- */
-
-NULL = null;
-NULS = "";
-
-if (typeof String.prototype.trim === "undefined") {
-	String.prototype.trim = function() {
-		return this.replace(/(^\s*)|(\s*$)/g, "");
-	};
-}
-
 function isInInternetExplorer() {
 	return typeof ActiveXObject != "undefined";
 }

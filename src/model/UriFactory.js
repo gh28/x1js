@@ -1,63 +1,40 @@
 "use strict";
 
-var ObjectStatic = {
-	clear: function(obj) {
-		for (var k in obj) {
-			if (obj.hasOwnPorperty(k)) {
-				delete obj[k];
-			}
-		}
-	},
-	copy: function(obj) {
-		return ObjectStatic.merge({}, obj);
-	},
-	merge: function(target, obj) {
-		for (var k in obj) {
-			if (obj.hasOwnPorperty(k)) {
-				var v = obj[k];
-				if (typeof v === "object") {
-					target[k] = {};
-					ObjectStatic.merge(target[k], v);
-				} else {
-					target[k] = v;
-				}
-			}
-		}
-		return target;
-	}
-}
+// key-value pairs as object
+var Query = function() {
+};
 
-var QueryPrototype = {
-	fromString: function(queryString, sp1, sp2) {
-		var query = this;
-		ObjectStatic.clear(query);
-		var a = queryString.split(sp1);
-		for (var i in a) {
-			var pair = a[i].split(sp2);
-			var k = pair[0];
-			var v = pair[1];
-			if (k) {
-				query[k] = (v || "1");
-			}
+Query.prototype.fromString = function(queryString, sp1, sp2) {
+	var query = this;
+	query.clear();
+	var a = queryString.split(sp1);
+	for (var i in a) {
+		var pair = a[i].split(sp2);
+		var k = pair[0];
+		var v = pair[1];
+		if (k) {
+			query[k] = (v || "1");
 		}
-	},
-	toString: function(sp1, sp2) {
-		var query = this;
-		var a = [];
-		for (var k in query) {
-			var v = query[k];
-			if (v) {
-				a.push(k + sp1 + v);
-			}
-		}
-		return a.join(sp2);
 	}
 };
 
-// to parse uri(mostly url) into an object and reverse
-// think this uri: scheme://user:pass@host:port/path?query#frag
-// will be parsed to object
+Query.prototype.toString = function(sp1, sp2) {
+	sp1 = sp1 || "=";
+	sp2 = sp2 || "&";
+	var query = this;
+	var a = [];
+	for (var k in query) {
+		var v = query[k];
+		if (v) {
+			a.push(k + sp1 + v);
+		}
+	}
+	return a.join(sp2);
+};
 
+// to parse uri(mostly url) into an object and reverse
+// think this uri: scheme://user:pass@host:port/path?query#fragment
+// will be parsed to object
 var Uri = function() {
 	this.source = null; // the source string before parse
 	this.scheme = null;
@@ -66,7 +43,7 @@ var Uri = function() {
 	this.host = null;
 	this.port = null;
 	this.path = null;
-	this.query = {}; // object as key-value pair
+	this.query = null;
 	this.fragment = null;
 }
 
@@ -100,13 +77,6 @@ Uri.prototype.getFragment = function() {
 	return this.fragment;
 }
 
-Uri.prototype.setQuery = function(query) {
-	if (typeof query === "object") {
-		this.query = query;
-		this.query.prototype = QueryPrototype;
-	}
-}
-
 Uri.prototype.getAuthority = function() {
 	var s = "";
 	if (this.user) {
@@ -124,6 +94,14 @@ Uri.prototype.getAuthority = function() {
 	}
 	return s;
 };
+
+Uri.prototype.setQuery = function(query) {
+	if (query instanceof Query) {
+		this.query = query;
+	} else {
+		throw new Error("cannot set query to an non-Query object");
+	}
+}
 
 // see toString() TODO
 Uri.prototype.fromString = function(queryString) {
@@ -150,10 +128,6 @@ Uri.prototype.toString = function() {
 		s += "#" + this.fragment;
 	}
 	return s;
-};
-
-Uri.prototype.copy = function() {
-	return ObjectStatic.merge(new Uri(), this);
 };
 
 // TODO
