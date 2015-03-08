@@ -48,4 +48,14 @@ NULS = "";
 			return this.replace(/(^\s*)|(\s*$)/g, "");
 		};
 	}
+	if (typeof String.prototype.startsWith === "undefined") {
+		String.prototype.startsWith = function(s) {
+			return this.substring(0, s.length) === s;
+		};
+	}
+	if (typeof String.prototype.endsWith === "undefined") {
+		String.prototype.endsWith = function(s) {
+			return this.substring(this.length - s.length) === s;
+		};
+	}
 })();

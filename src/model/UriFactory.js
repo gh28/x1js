@@ -33,18 +33,11 @@ Query.prototype.toString = function(sp1, sp2) {
 };
 
 // to parse uri(mostly url) into an object and reverse
-// think this uri: scheme://user:pass@host:port/path?query#fragment
-// will be parsed to object
+// sample uriString like: scheme://user:pass@host:port/path?query#fragment
+// and like: mailto:abc@def.ghi
+// may have field(s): source, scheme, ssp, user, pass, host, port, path, query, fragment
+// see http://docs.oracle.com/javase/1.5.0/docs/api/java/net/URI.html
 var Uri = function() {
-	this.source = null; // the source string before parse
-	this.scheme = null;
-	this.user = null;
-	this.pass = null;
-	this.host = null;
-	this.port = null;
-	this.path = null;
-	this.query = null;
-	this.fragment = null;
 }
 
 Uri.prototype.getSource = function() {
@@ -55,7 +48,7 @@ Uri.prototype.getScheme = function() {
 	return this.scheme;
 }
 
-Uri.prototype.getAuth = function() {
+Uri.prototype.getUserinfo = function() {
 	return {
 		user: this.user,
 		pass: this.pass
@@ -103,8 +96,61 @@ Uri.prototype.setQuery = function(query) {
 	}
 }
 
-// see toString() TODO
-Uri.prototype.fromString = function(queryString) {
+// see toString()
+Uri.prototype.fromString = function(uriString) {
+	this.clear();
+	this.valid = true;
+	this.source = uriString;
+	// test: "scheme://user:pass@host:port/path?query#fragment"
+	var a = uriString.match("^\\s*((.*?):)?(.*?)(#(.*?))?\\s*$");
+	this.scheme = a[2];
+	var ssp = a[3];
+	this.fragment = a[5];
+
+	if (!ssp) {
+		this.valid = false;
+		return this;
+	}
+
+	if (!this.isAbsolute()) {
+		this.path = ssp;
+		return this;
+	}
+
+	// test: "//user:pass@host:port/path?query"
+	// test: "///usr/local/bin/aaa"
+	// test: "comp.lang.javascript"
+	// test: "../../a/b/c/d"
+	if (ssp.startsWith("/")) {
+		a = ssp.match("^(//(.*?))?(/.*?)?(\\?(.*))?$");
+		var authority = a[2];
+		this.path = a[3];
+		var queryString = a[5];
+		if (authority) {
+			// test: "user:pass@host:7749"
+			a = authority.match("^((.*?)@)?(.+?)(:(\\d+))?$");
+			var userinfoString = a[2];
+			this.host = a[3];
+			this.port = parseInt(a[5]); // note it is int
+			if (!this.host) {
+				this.valid = false;
+				return this;
+			}
+			if (userinfoString) {
+				// test: "user:pass"
+				a = userinfoString.match("^(.*?)(:(.*))?$");
+				this.user = a[1];
+				this.pass = a[3];
+			}
+		}
+		if (queryString) {
+			this.query = new Query().fromString(queryString, "&", "=");
+		}
+	} else {
+		this.ssp = ssp;
+	}
+
+	return this;
 };
 
 // should be overridden to compose a specific scheme
@@ -130,15 +176,54 @@ Uri.prototype.toString = function() {
 	return s;
 };
 
+Uri.prototype.isAbsolute() {
+	return !!this.scheme;
+}
+
+Uri.prototype.isOpaque() {
+	return typeof this.ssp !== "string" || !this.ssp.startsWith("/");
+}
+
+Uri.prototype.isHierarchical() {
+	return !this.isOpaque() || !this.isAbsolute();
+}
+
 // TODO
-Uri.prototype.relativize = function(combined) {
-	var relative = new Uri();
-	return relative;
+Uri.prototype.normalize = function() {
 };
 
 // TODO
+Uri.prototype.relativize = function(combined) {
+	var relative = new Uri();
+	relative.fragment = combined.fragment;
+	return relative;
+};
+
 Uri.prototype.resolve = function(relative) {
-	var combined = new Uri();
+	var combined = undefined;
+	if (relative instanceof Uri) {
+		if (!relative.path || relative.path.startsWith("/")) {
+			return relative;
+		}
+		combined = this.copy();
+		combined.fragment = relative.fragment;
+	} else {
+		throw new Error("invalid argument: " + relative);
+	}
+	if (combined.isHierarchical()) {
+		if (combined.path) {
+			if (combined.path.endsWith("/")) {
+				combined.path += relative.path;
+			} else {
+				var a = combined.path.split("/");
+				a.pop();
+				combined.path = a.join("/") + "/" + relative.path;
+			}
+		} else {
+			combined.path = relative.path;
+		}
+		combined.normalize();
+	}
 	return combined;
 };
 
