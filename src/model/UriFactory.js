@@ -192,36 +192,63 @@ Uri.prototype.isHierarchical() {
 Uri.prototype.normalize = function() {
 };
 
-// TODO
 Uri.prototype.relativize = function(combined) {
+	if (!(combined instanceof Uri)) {
+		throw new Error("invalid argument: " + combined);
+	}
+
+	if (!this.path || !this.path.startsWith("/")
+		|| !combined.path || !combined.path.startsWith("/")) {
+		// TODO find out the requirement
+		return new Uri();
+	}
+
+	var a = this.path.split("/");
+	var pathHierarchy = combined.path.split("/");
+	while (a.length > 0 && pathHierarchy.length > 0) {
+		var e = a.shift();
+		var pathElement = pathHierarchy.shift();
+		if (e != pathElement) {
+			a.unshift(e);
+			pathHierarchy.unshift(pathElement);
+			break;
+		}
+	}
+	var i = a.length;
+	while (i--) {
+		pathHierarchy.unshift("..");
+	}
 	var relative = new Uri();
+	relative.path = pathHierarchy.join("/");
 	relative.fragment = combined.fragment;
 	return relative;
 };
 
 Uri.prototype.resolve = function(relative) {
-	var combined = undefined;
-	if (relative instanceof Uri) {
-		if (!relative.path || relative.path.startsWith("/")) {
-			return relative;
-		}
-		combined = this.copy();
-		combined.fragment = relative.fragment;
-	} else {
+	if (!(relative instanceof Uri)) {
 		throw new Error("invalid argument: " + relative);
 	}
-	if (combined.isHierarchical()) {
-		if (combined.path) {
-			if (combined.path.endsWith("/")) {
-				combined.path += relative.path;
+
+	if (!relative.path || relative.path.startsWith("/")) {
+		return relative;
+	}
+
+	var combined = this.copy();
+	combined.fragment = relative.fragment;
+	if (this.isHierarchical()) {
+		var path = undefined;
+		if (this.path) {
+			if (this.path.endsWith("/")) {
+				path = this.path + relative.path;
 			} else {
-				var a = combined.path.split("/");
+				var a = this.path.split("/");
 				a.pop();
-				combined.path = a.join("/") + "/" + relative.path;
+				path = a.join("/") + "/" + relative.path;
 			}
 		} else {
-			combined.path = relative.path;
+			path = relative.path;
 		}
+		combined.path = path;
 		combined.normalize();
 	}
 	return combined;
