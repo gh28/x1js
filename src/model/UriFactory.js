@@ -102,7 +102,7 @@ Uri.prototype.fromString = function(uriString) {
 	this.valid = true;
 	this.source = uriString;
 	// test: "scheme://user:pass@host:port/path?query#fragment"
-	var a = uriString.match("^\\s*((.*?):)?(.*?)(#(.*?))?\\s*$");
+	var a = uriString.match("^\\s*(([0-9a-z]+?):)?(.*?)(#(.*?))?\\s*$");
 	this.scheme = a[2];
 	var ssp = a[3];
 	this.fragment = a[5];
@@ -176,20 +176,50 @@ Uri.prototype.toString = function() {
 	return s;
 };
 
-Uri.prototype.isAbsolute() {
+Uri.prototype.isAbsolute = function() {
 	return !!this.scheme;
-}
+};
 
-Uri.prototype.isOpaque() {
-	return typeof this.ssp !== "string" || !this.ssp.startsWith("/");
-}
+Uri.prototype.isOpaque = function() {
+	return this.isAbsolute()
+		&& (typeof this.ssp !== "string" || !this.ssp.startsWith("/"));
+};
 
-Uri.prototype.isHierarchical() {
-	return !this.isOpaque() || !this.isAbsolute();
-}
+Uri.prototype.isHierarchical = function() {
+	return !this.isAbsolute() || typeof this.ssp !== "string";
+};
 
-// TODO
 Uri.prototype.normalize = function() {
+	if (this.isOpaque()) {
+		return this;
+	}
+	var a = this.path.split("/");
+	for (var i = 0; i < a.length;) {
+		if (a[i] === ".") {
+			a.splice(i, 1);
+			continue;
+		}
+		if (a[i] === "..") {
+			if (i > 0) {
+				if (a[i - 1] !== "..") {
+					a.splice(i - 1, 2);
+					--i;
+					continue;
+				}
+			}
+		}
+		++i;
+	}
+	if (a.length > 0 && a[0].contains(":")) {
+		a.unshift(".");
+	}
+	var path = a.join("/");
+	if (path === this.path) {
+		return this;
+	}
+	var normalized = this.copy();
+	normalized.path = path;
+	return normalized;
 };
 
 Uri.prototype.relativize = function(combined) {
