@@ -1,5 +1,8 @@
 "use strict";
 
+var srcPath = "../";
+var Path = require(srcPath + "model/Path.js");
+
 // key-value pairs as object
 var Query = function() {
 };
@@ -193,30 +196,12 @@ Uri.prototype.normalize = function() {
 	if (this.isOpaque()) {
 		return this;
 	}
-	var a = this.path.split("/");
-	for (var i = 0; i < a.length;) {
-		if (a[i] === ".") {
-			a.splice(i, 1);
-			continue;
-		}
-		if (a[i] === "..") {
-			if (i > 0) {
-				if (a[i - 1] !== "..") {
-					a.splice(i - 1, 2);
-					--i;
-					continue;
-				}
-			}
-		}
-		++i;
-	}
-	if (a.length > 0 && a[0].contains(":")) {
-		a.unshift(".");
-	}
-	var path = a.join("/");
+
+	var path = Path.normalize(this.path);
 	if (path === this.path) {
 		return this;
 	}
+
 	var normalized = this.copy();
 	normalized.path = path;
 	return normalized;
@@ -233,23 +218,8 @@ Uri.prototype.relativize = function(combined) {
 		return new Uri();
 	}
 
-	var a = this.path.split("/");
-	var pathHierarchy = combined.path.split("/");
-	while (a.length > 0 && pathHierarchy.length > 0) {
-		var e = a.shift();
-		var pathElement = pathHierarchy.shift();
-		if (e != pathElement) {
-			a.unshift(e);
-			pathHierarchy.unshift(pathElement);
-			break;
-		}
-	}
-	var i = a.length;
-	while (i--) {
-		pathHierarchy.unshift("..");
-	}
 	var relative = new Uri();
-	relative.path = pathHierarchy.join("/");
+	relative.path = Path.relativize(this.path, combined.path);
 	relative.fragment = combined.fragment;
 	return relative;
 };
@@ -266,20 +236,7 @@ Uri.prototype.resolve = function(relative) {
 	var combined = this.copy();
 	combined.fragment = relative.fragment;
 	if (this.isHierarchical()) {
-		var path = undefined;
-		if (this.path) {
-			if (this.path.endsWith("/")) {
-				path = this.path + relative.path;
-			} else {
-				var a = this.path.split("/");
-				a.pop();
-				path = a.join("/") + "/" + relative.path;
-			}
-		} else {
-			path = relative.path;
-		}
-		combined.path = path;
-		combined.normalize();
+		combined.path = Path.resolve(this.path, relative.path);
 	}
 	return combined;
 };
