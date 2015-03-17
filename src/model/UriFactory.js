@@ -2,38 +2,7 @@
 
 var srcPath = "../";
 var Path = require(srcPath + "model/Path.js");
-
-// key-value pairs as object
-var Query = function() {
-};
-
-Query.prototype.fromString = function(queryString, sp1, sp2) {
-	var query = this;
-	query.clear();
-	var a = queryString.split(sp1);
-	for (var i in a) {
-		var pair = a[i].split(sp2);
-		var k = pair[0];
-		var v = pair[1];
-		if (k) {
-			query[k] = (v || "1");
-		}
-	}
-};
-
-Query.prototype.toString = function(sp1, sp2) {
-	sp1 = sp1 || "=";
-	sp2 = sp2 || "&";
-	var query = this;
-	var a = [];
-	for (var k in query) {
-		var v = query[k];
-		if (v) {
-			a.push(k + sp1 + v);
-		}
-	}
-	return a.join(sp2);
-};
+var Query = require(srcPath + "model/Query.js");
 
 // to parse uri(mostly url) into an object and reverse
 // sample uriString like: scheme://user:pass@host:port/path?query#fragment
@@ -147,7 +116,7 @@ Uri.prototype.fromString = function(uriString) {
 			}
 		}
 		if (queryString) {
-			this.query = new Query().fromString(queryString, "&", "=");
+			this.query = Query.fromString(queryString, "&", "=");
 		}
 	} else {
 		this.ssp = ssp;
