@@ -41,4 +41,4 @@ Query.fromString = function(queryString, sp1, sp2) {
 	return query;
 };
 
-module = Query;
+module.exports = Query;
