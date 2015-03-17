@@ -213,5 +213,5 @@ Uri.prototype.resolve = function(relative) {
 module.exports = {
 	parse: function(uriString) {
 		return new Uri().fromString(uriString);
-	};
+	}
 };

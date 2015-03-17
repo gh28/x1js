@@ -11,7 +11,7 @@ NULS = "";
 		Object.prototype.clear = function() {
 			var obj = this;
 			for (var k in obj) {
-				if (obj.hasOwnPorperty(k)) {
+				if (obj.hasOwnProperty(k)) {
 					delete obj[k];
 				}
 			}

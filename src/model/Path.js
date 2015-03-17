@@ -48,7 +48,7 @@ function normalize(path) {
 function relativize(base, combined) {
 	if (typeof base !== "string"
 			|| typeof combined != "string") {
-		throw new Error("invalid argument: " + base + ", " combined);
+		throw new Error("invalid argument: " + base + ", " + combined);
 	}
 
 	if (!combined.startsWith("/")) {
@@ -75,7 +75,7 @@ function relativize(base, combined) {
 
 function resolve(base, relative) {
 	if (typeof base !== "string"
-			|| typeof relative !== "string")) {
+			|| typeof relative !== "string") {
 		throw new Error("invalid argument: " + base + ", " + relative);
 	}
 
@@ -93,6 +93,6 @@ function resolve(base, relative) {
 
 module.exports = {
 	normalize: normalize,
-	relative: relative,
+	relativize: relativize,
 	resolve: resolve
 };

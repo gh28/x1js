@@ -4,12 +4,15 @@ var Query = function() {
 };
 
 Query.prototype.fromString = function(queryString, sp1, sp2) {
+	if (typeof queryString !== "string") {
+		throw new Error("invalid argument: " + queryString);
+	}
 	sp1 = sp1 || "&";
 	sp2 = sp2 || "=";
 	var query = this;
 	query.clear();
 	var a = queryString.split(sp1);
-	for (var i in a) {
+	for (var i = 0; i < a.length; ++i) {
 		var pair = a[i].split(sp2);
 		var k = pair[0];
 		var v = pair[1];
