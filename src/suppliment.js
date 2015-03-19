@@ -18,18 +18,14 @@ NULS = "";
 		};
 	}
 	if (typeof Object.prototype.merge === "undefined") {
-		Object.prototype.merge = function merge(obj) {
+		Object.prototype.merge = function merge(obj, replaces) {
 			var target = this;
 			for (var k in obj) {
-				if (obj.hasOwnPorperty(k)) {
+				if (obj.hasOwnProperty(k)) {
 					var v = obj[k];
-					if (typeof v === "object") {
-						if (k === "prototype") {
-							target[k] = v;
-						} else {
-							target[k] = new Object().merge(v);
-						}
-					} else {
+					if (k === "prototype") {
+						// dummy
+					} else if (typeof target[k] === "undefined" || replaces) {
 						target[k] = v;
 					}
 				}
@@ -38,9 +34,22 @@ NULS = "";
 		};
 	}
 	if (typeof Object.prototype.copy === "undefined") {
-		Object.prototype.copy = function() {
+		Object.prototype.copy = function(isDeepCopy) {
+			var target = new Object();
 			var obj = this;
-			return new Object().merge(obj);
+			for (var k in obj) {
+				if (obj.hasOwnProperty(k)) {
+					var v = obj[k];
+					if (k === "prototype") {
+						target[k] = v;
+					} else if (typeof v === "object") {
+						target[k] = isDeepCopy ? v.copy(true) : v;
+					} else {
+						target[k] = v;
+					}
+				}
+			}
+			return target;
 		};
 	}
 	if (typeof String.prototype.trim === "undefined") {
