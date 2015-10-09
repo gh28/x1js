@@ -36,7 +36,7 @@
 
 		var domElement = document.getElementById(domId);
 		if (!domElement) {
-			throw new Error("cannot find dom id: " + id);
+			throw new Error("cannot find dom id: " + domId);
 		}
 
 		return compile(domElement.innerHTML);
