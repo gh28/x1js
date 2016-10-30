@@ -3,33 +3,29 @@
     var cache = {};
 
     /**
-     * compile jsTemplate to a render function
-     * jsTemplate is a string mainly html with javascript code in <% %> and <%= %> block
+     * compile template to a render function
+     * template is roughly html with javascript embeded as <% %> or <%= %>
      */
-    function compile(jsTemplate) {
-        jsTemplate = jsTemplate
+    function compile(template) {
+        var s = template
             .replace(/[\r\t\n]/g, " ")
             .split("<%").join("\t")
             .replace(/((^|%>)[^\t]*)'/g, "$1\r")
             .replace(/\t=(.*?)%>/g, "',$1,'")
             .split("\t").join("');")
-            .split("%>").join("p.push('")
+            .split("%>").join("print('")
             .split("\r").join("\\'");
-        var fn = new Function("data", "  \
-            var p = []; \
-            var print = function() {  \
-                p.push.apply(p, arguments); \
-            };  \
-            with(data) { \
-                p.push('" + jsTemplate + "'); \
-            } \
-            return p.join('');");
+        var fn = new Function("data",
+            "var buffer = []; " +
+            "var print = function() { buffer.push.apply(buffer, arguments); }; " +
+            "with(data) { print('" + s + "'); } " +
+            "return buffer.join('');");
         return {
             render: fn
         };
     }
 
-    function compileByDomId(domId) {
+    function getTemplate(domId) {
         if (/[^-0-9A-Z_a-z]/.test(domId)) {
             throw new Error("invalid tag id");
         }
@@ -39,28 +35,25 @@
             throw new Error("cannot find dom id: " + domId);
         }
 
-        return compile(domElement.innerHTML);
+        return domElement.innerHTML
+            .replace(/%&gt;/g, "%>")
+            .replace(/&lt;%/g, "<%");
     }
 
-    function instantiate(jsTemplate, data) {
-        return compile(jsTemplate).render(data);
+    function instantiate(template, data) {
+        return compile(template).render(data);
     }
 
-    // FIXME innerHTML sends '&lt;%' for '<%' and so as '%>'
-    function instantiateById(domId, data) {
-        if (/[^-0-9A-Z_a-z]/.test(domId)) {
-            throw new Error("invalid dom id");
-        }
-
-        // lookup cache first
+    function instantiateByDomId(domId, data) {
         if (typeof cache[domId] === "undefined") {
-            cache[domId] = compileByDomId(domId);
+            template = getTemplate(domId);
+            cache[domId] = compile(template);
         }
         return cache[domId].render(data);
     }
 
-    this.jsTemplateEngine = {
+    this.templateEngine = {
         instantiate: instantiate,
-        instantiateById: instantiateById
+        instantiateByDomId: instantiateByDomId
     };
 })();
