@@ -5,142 +5,45 @@ var Path = require(srcPath + "model/Path.js");
 var Query = require(srcPath + "model/Query.js");
 
 // to parse uri(mostly url) into an object and reverse
-// sample uriString like: scheme://user:pass@host:port/path?query#fragment
-// and like: mailto:abc@def.ghi
-// may have field(s): source, scheme, ssp, user, pass, host, port, path, query, fragment
 // see http://docs.oracle.com/javase/1.5.0/docs/api/java/net/URI.html
 var Uri = function() {
+    this.source = undefined;
+    this.scheme = undefined;
+    this.schemeSpecificPart = undefined;
+    this.fragment = undefined;
 }
-
-Uri.prototype.getSource = function() {
-    return this.source;
-}
-
-Uri.prototype.getScheme = function() {
-    return this.scheme;
-}
-
-Uri.prototype.getUserinfo = function() {
-    return {
-        user: this.user,
-        pass: this.pass
-    };
-}
-
-Uri.prototype.getHost = function() {
-    return {
-        host: this.host,
-        port: this.port
-    };
-}
-
-Uri.prototype.getQuery = function() {
-    return this.query;
-}
-
-Uri.prototype.getFragment = function() {
-    return this.fragment;
-}
-
-Uri.prototype.getAuthority = function() {
-    var s = "";
-    if (this.user) {
-        s += this.user;
-        if (this.pass) {
-            s += ":" + this.pass;
-        }
-        s += "@";
-    }
-    if (this.host) {
-        s += host;
-    }
-    if (this.port) {
-        s += ":" + this.port;
-    }
-    return s;
-};
-
-Uri.prototype.setQuery = function(query) {
-    if (query instanceof Query) {
-        this.query = query;
-    } else {
-        throw new Error("cannot set query to an non-Query object");
-    }
-}
-
-// see toString()
-Uri.prototype.fromString = function(uriString) {
-    this.clear();
-    this.valid = true;
-    this.source = uriString;
-    // test: "scheme://user:pass@host:port/path?query#fragment"
-    var a = uriString.match("^\\s*(([0-9a-z]+?):)?(.*?)(#(.*?))?\\s*$");
-    this.scheme = a[2];
-    var ssp = a[3];
-    this.fragment = a[5];
-
-    if (!ssp) {
-        this.valid = false;
-        return this;
-    }
-
-    if (!this.isAbsolute()) {
-        this.path = ssp;
-        return this;
-    }
-
-    // test: "//user:pass@host:port/path?query"
-    // test: "///usr/local/bin/aaa"
-    // test: "comp.lang.javascript"
-    // test: "../../a/b/c/d"
-    if (ssp.startsWith("/")) {
-        a = ssp.match("^(//(.*?))?(/.*?)?(\\?(.*))?$");
-        var authority = a[2];
-        this.path = a[3];
-        var queryString = a[5];
-        if (authority) {
-            // test: "user:pass@host:7749"
-            a = authority.match("^((.*?)@)?(.+?)(:(\\d+))?$");
-            var userinfoString = a[2];
-            this.host = a[3];
-            this.port = parseInt(a[5]); // note it is int
-            if (!this.host) {
-                this.valid = false;
-                return this;
-            }
-            if (userinfoString) {
-                // test: "user:pass"
-                a = userinfoString.match("^(.*?)(:(.*))?$");
-                this.user = a[1];
-                this.pass = a[3];
-            }
-        }
-        if (queryString) {
-            this.query = Query.fromString(queryString, "&", "=");
-        }
-    } else {
-        this.ssp = ssp;
-    }
-
-    return this;
-};
 
 // should be overridden to compose a specific scheme
-// e.g. http scheme and mailto scheme is different
+// e.g. http/mailto is different
 Uri.prototype.toString = function() {
     var s = "";
     if (this.scheme) {
         s += this.scheme + ":"
     }
-    var authority = this.getAuthority();
-    if (authority) {
-        s += "//" + authority;
+
+    var au = "";
+    if (this.user) {
+        au += this.user;
+        if (this.pass) {
+            au += ":" + this.pass;
+        }
+        au += "@";
     }
+    if (this.host) {
+        au += host;
+    }
+    if (this.port) {
+        au += ":" + this.port;
+    }
+    if (au) {
+        s += "//" + au;
+    }
+
     if (this.path) {
         s += this.path;
     }
-    if (this.query) {
-        s += "?" + this.query.toString("=", "&");
+    if (this.queried) {
+        s += "?" + this.queried.toString("=", "&");
     }
     if (this.fragment) {
         s += "#" + this.fragment;
@@ -152,13 +55,20 @@ Uri.prototype.isAbsolute = function() {
     return !!this.scheme;
 };
 
+Uri.prototype.isRelative = function() {
+    return !this.isAbsolute();
+};
+
+// Opaque Uri is not subject to further parsing
+// mailto:java-net@java.sun.com
+// news:comp.lang.java
+// urn:isbn:096139210x
 Uri.prototype.isOpaque = function() {
-    return this.isAbsolute()
-        && (typeof this.ssp !== "string" || !this.ssp.startsWith("/"));
+    return this.isAbsolute() && !this.schemeSpecificPart.startsWith("/");
 };
 
 Uri.prototype.isHierarchical = function() {
-    return !this.isAbsolute() || typeof this.ssp !== "string";
+    return !this.isOpaque();
 };
 
 Uri.prototype.normalize = function() {
@@ -183,7 +93,7 @@ Uri.prototype.relativize = function(combined) {
 
     if (!this.path || !this.path.startsWith("/")
         || !combined.path || !combined.path.startsWith("/")) {
-        // TODO find out the requirement
+        // TODO figure out the requirement
         return new Uri();
     }
 
@@ -210,8 +120,66 @@ Uri.prototype.resolve = function(relative) {
     return combined;
 };
 
-module.exports = {
-    parse: function(uriString) {
-        return new Uri().fromString(uriString);
+Uri.byString = function(uriString) {
+    var uri = new Uri();
+    uri.source = uriString;
+    // test: [scheme:]scheme-specific-part[#fragment]
+    var captured = uriString.match("^"
+            + "(" + "([0-9a-z_-]+?)" + ":" + ")?" // 2:scheme
+            + "([^#]+)" // 3:schemeSpecificPart
+            + "(" + "#" + "(.*)" + ")?" // 5:fragment
+            + "$");
+    uri.scheme = captured[2];
+    uri.schemeSpecificPart = captured[3];
+    uri.fragment = captured[5];
+    parseSchemeSpecificPart(uri);
+    return uri;
+}
+
+function parseSchemeSpecificPart(uri) {
+    if (uri.schemeSpecificPart) {
+        // test: [//authority][path][?query]
+        var captured = uri.schemeSpecificPart.match("^"
+                + "(" + "//" + "([^/]*)" + ")?" // 2:authority
+                + "(" + "/.*?" + ")?" // 3:path
+                + "(" + "\\?" + "(.*)" + ")?" // 5:query
+                + "$");
+        uri.authority = captured[2];
+        uri.path = captured[3];
+        uri.query = captured[5];
     }
+
+    if (uri.authority) {
+        // test: [user-info@]host[:port]
+        var captured = uri.authority.match("^"
+                + "(" + "(.*?)" + "@" + ")?" // 2:userInfo
+                + "([^:]+)" // 3:host
+                + "(" + ":(\\d+)" + ")?" // 5:port
+                + "$");
+        uri.userInfo = captured[2];
+        uri.host = captured[3];
+        uri.port = captured[5];
+    }
+
+    if (uri.userInfo) {
+        var captured = uri.userInfo.match("^"
+                + "(.*?)"
+                + "(" + ":" + "(.*)" + ")?"
+                + "$");
+        uri.user = captured[1];
+        uri.pass = captured[3];
+    }
+
+    if (uri.query) {
+        uri.queried = Query.fromString(uri.query, "&", "=");
+    }
+
+    // test: "//user:pass@host:port/path?query"
+    // test: "///usr/local/bin/aaa"
+    // test: "comp.lang.javascript"
+    // test: "../../a/b/c/d"
+}
+
+module.exports = {
+    parse: Uri.byString
 };
