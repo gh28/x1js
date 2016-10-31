@@ -1,8 +1,8 @@
 "use strict";
 
 var srcPath = "../";
-var Path = require(srcPath + "model/Path.js");
-var Query = require(srcPath + "model/Query.js");
+var Path = require(srcPath + "module/Path.js");
+var Dict = require(srcPath + "module/Dict.js");
 
 // to parse uri(mostly url) into an object and reverse
 // see http://docs.oracle.com/javase/1.5.0/docs/api/java/net/URI.html
@@ -120,7 +120,7 @@ Uri.prototype.resolve = function(relative) {
     return combined;
 };
 
-Uri.byString = function(uriString) {
+Uri.fromString = function(uriString) {
     var uri = new Uri();
     uri.source = uriString;
     // test: [scheme:]scheme-specific-part[#fragment]
@@ -135,6 +135,8 @@ Uri.byString = function(uriString) {
     parseSchemeSpecificPart(uri);
     return uri;
 }
+
+Uri.parse = Uri.fromString;
 
 function parseSchemeSpecificPart(uri) {
     if (uri.schemeSpecificPart) {
@@ -171,7 +173,7 @@ function parseSchemeSpecificPart(uri) {
     }
 
     if (uri.query) {
-        uri.queried = Query.fromString(uri.query, "&", "=");
+        uri.queried = Dict.fromString(uri.query, "&", "=");
     }
 
     // test: "//user:pass@host:port/path?query"
@@ -180,6 +182,6 @@ function parseSchemeSpecificPart(uri) {
     // test: "../../a/b/c/d"
 }
 
-module.exports = {
-    parse: Uri.byString
-};
+if (module) {
+    module.exports = Uri;
+}
