@@ -4,95 +4,95 @@
 
 /*
  * usage:
- *	 <div class="cc-spinner-overlay-mask"></div>
- *	 <div class="cc-spinner size32">
- *		 <div class="rotaterR"></div>
- *		 <div class="rotaterL"></div>
- *	 </div>
+ *   <div class="cc-spinner-overlay-mask"></div>
+ *   <div class="cc-spinner size32">
+ *     <div class="rotaterR"></div>
+ *     <div class="rotaterL"></div>
+ *   </div>
  *
  */
 
 /* animation */
 
 @-webkit-keyframes anim-rotateR {
-	from { -webkit-transform: rotate(0deg); }
-	to { -webkit-transform: rotate(1080deg); }
+  from { -webkit-transform: rotate(0deg); }
+  to { -webkit-transform: rotate(1080deg); }
 }
 @-webkit-keyframes anim-rotateL {
-	from { -webkit-transform: rotate(720deg); }
-	to { -webkit-transform: rotate(0deg); }
+  from { -webkit-transform: rotate(720deg); }
+  to { -webkit-transform: rotate(0deg); }
 }
 @keyframes anim-rotateR {
-	from { transform: rotate(0deg); }
-	to { transform: rotate(1080deg); }
+  from { transform: rotate(0deg); }
+  to { transform: rotate(1080deg); }
 }
 @keyframes anim-rotateL {
-	from { transform: rotate(720deg); }
-	to { transform: rotate(0deg); }
+  from { transform: rotate(720deg); }
+  to { transform: rotate(0deg); }
 }
 
 /* css */
 
 .cc-spinner-overlay-mask {
-	background-color: #CCC;
-	position: fixed;
-	top: 0;
-	bottom: 0;
-	left: 0;
-	right: 0;
-	opacity: 0.8;
+  background-color: #CCC;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  opacity: 0.8;
 }
 
 .cc-spinner {
-	background-color: #000;
-	display: inline-block;
-	vertical-align: middle;
+  background-color: #000;
+  display: inline-block;
+  vertical-align: middle;
 }
 
 .cc-spinner > div {
-	-webkit-animation-duration: 4s;
-	-webkit-animation-iteration-count: infinite;
-	-webkit-animation-timing-function: linear;
-	-webkit-transform-origin: center;
-	animation-duration: 4s;
-	animation-iteration-count: infinite;
-	animation-timing-function: linear;
-	transform-origin: center;
-	background-image: url('spinner.png');
-	position: absolute;
+  -webkit-animation-duration: 4s;
+  -webkit-animation-iteration-count: infinite;
+  -webkit-animation-timing-function: linear;
+  -webkit-transform-origin: center;
+  animation-duration: 4s;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+  transform-origin: center;
+  background-image: url('spinner.png');
+  position: absolute;
 }
 
 .cc-spinner > div.rotaterR {
-	-webkit-animation-name: anim-rotateR;
-	animation-name: anim-rotateR;
+  -webkit-animation-name: anim-rotateR;
+  animation-name: anim-rotateR;
 }
 .cc-spinner > div.rotaterL {
-	-webkit-animation-name: anim-rotateL;
-	animation-name: anim-rotateL;
+  -webkit-animation-name: anim-rotateL;
+  animation-name: anim-rotateL;
 }
 
 .cc-spinner.size32,
 .cc-spinner.size32 > div {
-	width: 32px;
-	height: 32px;
+  width: 32px;
+  height: 32px;
 }
 .cc-spinner.size32 > div.rotaterR {
-	background-position: -400px -44px;
+  background-position: -400px -44px;
 }
 .cc-spinner.size32 > div.rotaterL {
-	background-position: -432px -44px;
+  background-position: -432px -44px;
 }
 
 .cc-spinner.size48,
 .cc-spinner.size48 > div {
-	width: 48px;
-	height: 48px;
+  width: 48px;
+  height: 48px;
 }
 .cc-spinner.size48 > div.rotaterR {
-	background-position: -304px -28px;
+  background-position: -304px -28px;
 }
 .cc-spinner.size48 > div.rotaterL {
-	background-position: -352px -28px;
+  background-position: -352px -28px;
 }
 
 /**
@@ -100,70 +100,70 @@
  *
  * usage:
  *
- *	 <div class="page-cover">
- *		 <div class="spinner">
- *			 <div class="spinner-inner"></div>
- *		 </div>
- *	 </div>
+ *   <div class="page-cover">
+ *     <div class="spinner">
+ *       <div class="spinner-inner"></div>
+ *     </div>
+ *   </div>
  * we always add opacity to page-cover
  */
 
 .spinner {
-	background-color: none;
-	margin: auto;
-	height: 40px;
-	width: 40px;
-	position: fixed;
-	top: 0;
-	bottom: 0;
-	left: 0;
-	right: 0;
+  background-color: none;
+  margin: auto;
+  height: 40px;
+  width: 40px;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
 }
 .spinner:after {
-	background: none repeat scroll 0 0 #FFF;
-	border-radius: 100% 100% 100% 100%;
-	content: " ";
-	margin: 15%;
-	position: absolute;
-	top: 0;
-	bottom: 0;
-	left: 0;
-	right: 0;
+  background: none repeat scroll 0 0 #FFF;
+  border-radius: 100% 100% 100% 100%;
+  content: " ";
+  margin: 15%;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
 }
 .spinner-inner {
-	-webkit-animation-duration: 2.5s;
-	-webkit-animation-iteration-count: infinite;
-	-webkit-animation-name: anim-rotateR;
-	-webkit-animation-timing-function: linear;
-	animation-duration: 2.5s;
-	animation-iteration-count: infinite;
-	animation-name: anim-rotateR;
-	animation-timing-function: linear;
-	position: absolute;
-	top: 0;
-	bottom: 0;
-	left: 0;
-	right: 0;
+  -webkit-animation-duration: 2.5s;
+  -webkit-animation-iteration-count: infinite;
+  -webkit-animation-name: anim-rotateR;
+  -webkit-animation-timing-function: linear;
+  animation-duration: 2.5s;
+  animation-iteration-count: infinite;
+  animation-name: anim-rotateR;
+  animation-timing-function: linear;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
 }
 .spinner-inner:before {
-	background-image: -webkit-linear-gradient(to bottom, rgba(228, 121, 17, 0.55), rgba(228, 121, 17, 0));
-	background-image: linear-gradient(to bottom, rgba(228, 121, 17, 0.55), rgba(228, 121, 17, 0));
-	border-radius: 60px 0 0 60px;
-	position: absolute;
-	top: 0;
-	bottom: 0;
-	left: 0;
-	right: 50%;
-	content: " ";
+  background-image: -webkit-linear-gradient(to bottom, rgba(228, 121, 17, 0.55), rgba(228, 121, 17, 0));
+  background-image: linear-gradient(to bottom, rgba(228, 121, 17, 0.55), rgba(228, 121, 17, 0));
+  border-radius: 60px 0 0 60px;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 50%;
+  content: " ";
 }
 .spinner-inner:after {
-	background-image: -webkit-linear-gradient(to bottom, rgba(228, 121, 17, 0.47), rgba(228, 121, 17, 1));
-	background-image: linear-gradient(to bottom, rgba(228, 121, 17, 0.47), rgba(228, 121, 17, 1));
-	border-radius: 0 60px 60px 0;
-	position: absolute;
-	top: 0;
-	bottom: 0;
-	left: 50%;
-	right: 0;
-	content: " ";
+  background-image: -webkit-linear-gradient(to bottom, rgba(228, 121, 17, 0.47), rgba(228, 121, 17, 1));
+  background-image: linear-gradient(to bottom, rgba(228, 121, 17, 0.47), rgba(228, 121, 17, 1));
+  border-radius: 0 60px 60px 0;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  right: 0;
+  content: " ";
 }
