@@ -3,7 +3,41 @@
 var Dict = function() {
 };
 
-Dict.prototype.fromString = function(s, spMajor, spMinor) {
+Dict.prototype.clear = function() {
+    for (var k in this) {
+        if (this.hasOwnProperty(k)) {
+            delete this[k];
+        }
+    }
+}
+
+Dict.prototype.union = function(o) {
+    var t = new Dict();
+    return t.merge(this).merge(o);
+};
+
+Dict.prototype.intersect = function(o) {
+    var t = new Dict();
+    for (var i in this) {
+        if (this.hasOwnProperty(i) && o.hasOwnProperty(i)) {
+            t[i] = this[i];
+        }
+    }
+    return t;
+};
+
+// A \ B = A union B remove B
+Dict.prototype.complement = function(o) {
+    var t = new Dict();
+    for (var i in this) {
+        if (this.hasOwnProperty(i) && !o.hasOwnProperty(i)) {
+            t[i] = this[i];
+        }
+    }
+    return t;
+};
+
+Dict.prototype.byOneLine = function(s, spMajor, spMinor) {
     if (typeof s !== "string") {
         throw new Error("E: invalid: " + s);
     }
@@ -22,7 +56,7 @@ Dict.prototype.fromString = function(s, spMajor, spMinor) {
     return this;
 };
 
-Dict.prototype.toString = function(spMajor, spMinor) {
+Dict.prototype.toOneLine = function(spMajor, spMinor) {
     spMajor = spMajor || "&";
     spMinor = spMinor || "=";
     var a = [];
@@ -35,9 +69,9 @@ Dict.prototype.toString = function(spMajor, spMinor) {
     return a.join(spMajor);
 };
 
-Dict.fromString = function(s, spMajor, spMinor) {
+Dict.byOneLine = function(s, spMajor, spMinor) {
     var o = new Dict();
-    o.fromString(s, spMajor, spMinor);
+    o.byOneLine(s, spMajor, spMinor);
     return o;
 };
 

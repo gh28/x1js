@@ -1,8 +1,10 @@
 "use strict";
 
-var srcPath = "../";
-var Path = require(srcPath + "module/Path.js");
-var Dict = require(srcPath + "module/Dict.js");
+// rfc3986
+
+var TOP = "..";
+var Path = require(TOP + "/module/Path.js");
+var Dict = require(TOP + "/module/Dict.js");
 
 // to parse uri(mostly url) into an object and reverse
 // see http://docs.oracle.com/javase/1.5.0/docs/api/java/net/URI.html
@@ -42,8 +44,8 @@ Uri.prototype.toString = function() {
     if (this.path) {
         s += this.path;
     }
-    if (this.queried) {
-        s += "?" + this.queried.toString("=", "&");
+    if (!this.query.isEmpty()) {
+        s += "?" + this.query.toString("=", "&");
     }
     if (this.fragment) {
         s += "#" + this.fragment;
@@ -71,56 +73,7 @@ Uri.prototype.isHierarchical = function() {
     return !this.isOpaque();
 };
 
-Uri.prototype.normalize = function() {
-    if (this.isOpaque()) {
-        return this;
-    }
-
-    var path = Path.normalize(this.path);
-    if (path === this.path) {
-        return this;
-    }
-
-    var normalized = this.copy();
-    normalized.path = path;
-    return normalized;
-};
-
-Uri.prototype.relativize = function(combined) {
-    if (!(combined instanceof Uri)) {
-        throw new Error("invalid argument: " + combined);
-    }
-
-    if (!this.path || !this.path.startsWith("/")
-        || !combined.path || !combined.path.startsWith("/")) {
-        // TODO figure out the requirement
-        return new Uri();
-    }
-
-    var relative = new Uri();
-    relative.path = Path.relativize(this.path, combined.path);
-    relative.fragment = combined.fragment;
-    return relative;
-};
-
-Uri.prototype.resolve = function(relative) {
-    if (!(relative instanceof Uri)) {
-        throw new Error("invalid argument: " + relative);
-    }
-
-    if (!relative.path || relative.path.startsWith("/")) {
-        return relative;
-    }
-
-    var combined = this.copy();
-    combined.fragment = relative.fragment;
-    if (this.isHierarchical()) {
-        combined.path = Path.resolve(this.path, relative.path);
-    }
-    return combined;
-};
-
-Uri.fromString = function(uriString) {
+Uri.byString = function(uriString) {
     var uri = new Uri();
     uri.source = uriString;
     // test: [scheme:]scheme-specific-part[#fragment]
@@ -135,8 +88,7 @@ Uri.fromString = function(uriString) {
     parseSchemeSpecificPart(uri);
     return uri;
 }
-
-Uri.parse = Uri.fromString;
+Uri.parse = Uri.byString;
 
 function parseSchemeSpecificPart(uri) {
     if (uri.schemeSpecificPart) {
@@ -154,17 +106,17 @@ function parseSchemeSpecificPart(uri) {
     if (uri.authority) {
         // test: [user-info@]host[:port]
         var captured = uri.authority.match("^"
-                + "(" + "(.*?)" + "@" + ")?" // 2:userInfo
+                + "(" + "(.*?)" + "@" + ")?" // 2:userinfo
                 + "([^:]+)" // 3:host
                 + "(" + ":(\\d+)" + ")?" // 5:port
                 + "$");
-        uri.userInfo = captured[2];
+        uri.userinfo = captured[2];
         uri.host = captured[3];
         uri.port = captured[5];
     }
 
-    if (uri.userInfo) {
-        var captured = uri.userInfo.match("^"
+    if (uri.userinfo) {
+        var captured = uri.userinfo.match("^"
                 + "(.*?)"
                 + "(" + ":" + "(.*)" + ")?"
                 + "$");
@@ -172,9 +124,7 @@ function parseSchemeSpecificPart(uri) {
         uri.pass = captured[3];
     }
 
-    if (uri.query) {
-        uri.queried = Dict.fromString(uri.query, "&", "=");
-    }
+    uri.query = Dict.byOneLine(uri.query || "", "&", "=");
 
     // test: "//user:pass@host:port/path?query"
     // test: "///usr/local/bin/aaa"

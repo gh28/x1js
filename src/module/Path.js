@@ -1,51 +1,56 @@
 "use strict";
 
+var Path = {};
+
+Path.isAbsolute = function(path) {
+    return path.startsWith("/");
+}
+
+Path.isRelative = function(path) {
+    return !Path.isAbsolute(path);
+}
+
 function path2segs(path) {
     return path.split("/");
 }
 
-function isPathDirectory(path) {
-    return path.endsWith("/");
+Path.basename = function(path) {
+    var segs = path2segs(path);
+    return segs[segs.length - 1];
 }
 
-function isPathAbsolute(path) {
-    return path.startsWith("/");
-}
-
-function isPathRelative(path) {
-    return !isPathAbsolute(path);
-}
-
-function normalize(path) {
-    if (typeof path === "string") {
-        path = path2segs(path);
-    }
-
-    if (typeof path !== "object") {
+Path.normalize = function(path) {
+    if (typeof path !== "string") {
         throw new Error("E: invalid argument: " + path);
     }
-
-    var a = path;
-    for (var i = 0; i < a.length; ) {
-        if (!a[i] || a[i] === ".") {
-            a.splice(i, 1);
+    var isAbsolute = Path.isAbsolute(path);
+    var segs = path2segs(path);
+    for (var i = 0; i < segs.length;) {
+        if (!segs[i] || segs[i] === ".") {
+            segs.splice(i, 1);
             continue;
         }
-        if (a[i] === "..") {
+        if (segs[i] === "..") {
             if (i > 0) {
-                if (a[i - 1] !== "..") {
-                    a.splice(i - 1, 2);
+                if (segs[i - 1] !== "..") {
+                    segs.splice(i - 1, 2);
                     --i;
                     continue;
                 }
+            } else if (isAbsolute) {
+                segs.splice(i, 1);
+                continue;
             }
         }
         ++i;
     }
-    return a.join("/");
+    if (isAbsolute) {
+        segs.unshift("");
+    }
+    return segs.join("/");
 }
 
-function relativize(base, combined) {
+Path.relativize = function(base, combined) {
     if (typeof base !== "string"
             || typeof combined != "string") {
         throw new Error("invalid argument: " + base + ", " + combined);
@@ -55,25 +60,25 @@ function relativize(base, combined) {
         return combined;
     }
 
-    var a = path2segs(normalize(base));
-    var b = path2segs(normalize(combined));
-    while (a.length > 0 && b.length > 0) {
-        var a1 = a.shift();
-        var b1 = b.shift();
+    var srcSegs = path2segs(normalize(base));
+    var dstSegs = path2segs(normalize(combined));
+    while (srcSegs.length > 0 && dstSegs.length > 0) {
+        var a1 = srcSegs.shift();
+        var b1 = dstSegs.shift();
         if (a1 !== b1) {
-            a.unshift(a1);
-            b.unshift(b1);
+            srcSegs.unshift(a1);
+            dstSegs.unshift(b1);
             break;
         }
     }
-    var i = a.length();
+    var i = srcSegs.length();
     while (i--) {
-        b.unshift("..");
+        dstSegs.unshift("..");
     }
-    return b.join("/");
+    return dstSegs.join("/");
 }
 
-function resolve(base, relative) {
+Path.resolve = function(base, relative) {
     if (typeof base !== "string"
             || typeof relative !== "string") {
         throw new Error("invalid argument: " + base + ", " + relative);
@@ -83,7 +88,7 @@ function resolve(base, relative) {
         return relative;
     }
 
-    if (isPathDirectory(base)) {
+    if (isDirectory(base)) {
         base = base + "/" + relative;
     } else {
         base = base + "/../" + relative;
@@ -92,9 +97,5 @@ function resolve(base, relative) {
 }
 
 if (module) {
-    module.exports = {
-        normalize: normalize,
-        relativize: relativize,
-        resolve: resolve
-    };
+    module.exports = Path;
 }
