@@ -28,7 +28,7 @@ router.addRule("get", "/view", function(context) {
     return true;
 });
 router.addRule("get", "/*", function(context) {
-    var fp = config.path.webroot + Path.normalize(context.uri.path);
+    var fp = config.path.webroot + Path.normalize(decodeURIComponent(context.uri.path));
     FileProvider.simpleFile(context, fp);
     return true;
 });
