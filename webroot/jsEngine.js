@@ -1,4 +1,4 @@
-(function() {
+this.jsEngine = (function() {
     // should keep cache transparent
     var cache = {};
 
@@ -13,13 +13,25 @@
             .replace(/((^|%>)[^\t]*)'/g, "$1\r")
             .replace(/\t=(.*?)%>/g, "',$1,'")
             .split("\t").join("');")
-            .split("%>").join("print('")
+            .split("%>").join("puts('")
             .split("\r").join("\\'");
-        var fn = new Function("data",
-            "var buffer = []; " +
-            "var print = function() { buffer.push.apply(buffer, arguments); }; " +
-            "with(data) { print('" + s + "'); } " +
-            "return buffer.join('');");
+        var fn = new Function("data", "\
+            var buffer = []; \
+            function puts() {\
+                var va = [];\
+                for (var i = 0; i < arguments.length; ++i) {\
+                    var v = arguments[i];\
+                    if (typeof v === 'string') {\
+                        va.push(v);\
+                    } else if (typeof v === 'object' && v instanceof Array) {\
+                        va.push(v.join('<br/>'));\
+                    }\
+                }\
+                buffer.push(va);\
+            }\
+            puts('" + s + "');\
+            return buffer.join(\"\");\
+        ");
         return {
             render: fn
         };
@@ -37,22 +49,25 @@
 
         return domElement.innerHTML
             .replace(/%&gt;/g, "%>")
-            .replace(/&lt;%/g, "<%");
+            .replace(/&lt;%/g, "<%")
+            .replace(/(<%.*?)(&lt;)(.*?%>)/g, "$1<$3")
+            .replace(/(<%.*?)(&gt;)(.*?%>)/g, "$1>$3")
+            .replace(/(<%.*?)(&amp;){2}(.*?%>)/g, "$1&&$3");
     }
 
     function instantiate(template, data) {
         return compile(template).render(data);
     }
 
-    function instantiateByDomId(domId, data) {
+    function instantiateByDomId(domId, data, dataName) {
         if (typeof cache[domId] === "undefined") {
             template = getTemplate(domId);
             cache[domId] = compile(template);
         }
-        return cache[domId].render(data);
+        return cache[domId].render(data, "ff");
     }
 
-    this.templateEngine = {
+    return {
         instantiate: instantiate,
         instantiateByDomId: instantiateByDomId
     };

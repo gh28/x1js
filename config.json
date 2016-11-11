@@ -1,5 +1,6 @@
 {
     "path": {
+        "TOP": process.env.PWD,
         "webroot": "./webroot",
         "webpage": "./src/page"
     },
