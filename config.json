@@ -1,7 +1,0 @@
-{
-    "path": {
-        "webroot": "./webroot",
-        "webpage": "./src/page"
-    },
-    "port": 8090
-}

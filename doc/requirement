@@ -8,4 +8,4 @@ mvc
 static file server
   browser send url, server parse url, find the file in hdd.
   if file exists, return 200 and send file;
-  if file doesn't exist, return 404 and send 404 file
+  if file doesn't exist, return 404

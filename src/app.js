@@ -6,7 +6,7 @@ var fs = require("fs");
 
 var TOP = ".";
 require(TOP + "/supplement.js");
-var config = require("../config.json");
+var config = require("./config.json");
 var PORT = require("yargs").alias("port", "p").argv.port || config.port;
 var Path = require(TOP + "/module/Path.js");
 
