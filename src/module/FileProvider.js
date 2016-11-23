@@ -32,7 +32,7 @@ function sendFile(context, fp, mimeType) {
     var lastModified = stats.mtime.toUTCString();
     ack.setHeader("last-modified", lastModified);
     if (context.getReqHeader("if-modified-since") === lastModified) {
-        // cached
+        // 304 Not Modified
         context.reply(304);
         return;
     }
@@ -40,7 +40,7 @@ function sendFile(context, fp, mimeType) {
     if (/bytes=(.+)/.test(context.getReqHeader("range") || "")) {
         context.current.aRange = Util.parseRange(RegExp.$1, stats.size);
         if (!context.current.aRange) {
-            // 416: Requested Range Not Satisfiable
+            // 416 Requested Range Not Satisfiable
             context.reply(416);
             return;
         }
