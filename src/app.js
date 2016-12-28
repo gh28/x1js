@@ -17,14 +17,14 @@ var FileProvider = require(TOP + "/module/FileProvider.js");
 
 var router = new Router();
 router.addRule("/resume", function(context) {
-    var fp = config.path.webpage + "/resume.html";
-    FileProvider.sendFile(context, fp);
+    var fp = config.path.webpage + "/resume";
+    FileProvider.sendFile(context, fp, "text/html");
     return true;
 });
 router.addRule("/view", function(context) {
     var fp = config.path.webpage + Path.normalize("/" + decodeURIComponent(
             context.uri.query["fn"] || "demo"));
-    FileProvider.sendFile(context, fp);
+    FileProvider.sendFile(context, fp, "text/html");
     return true;
 });
 router.addRule("/story/*", function(context) {
