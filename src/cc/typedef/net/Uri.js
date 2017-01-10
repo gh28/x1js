@@ -2,9 +2,7 @@
 
 // rfc3986
 
-var TOP = "..";
-var Path = require(TOP + "/module/Path.js");
-var Dict = require(TOP + "/module/Dict.js");
+const Dict = importPackage("cc.typedef.basic.Dict");
 
 // to parse uri(mostly url) into an object and reverse
 // see http://docs.oracle.com/javase/1.5.0/docs/api/java/net/URI.html

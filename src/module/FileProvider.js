@@ -1,15 +1,15 @@
 "use strict";
 
-var fs = require("fs");
-var iconv = require("iconv-lite");
-var zlib = require("zlib");
+const fs = require("fs");
+const iconv = require("iconv-lite");
+const zlib = require("zlib");
 
-var TOP = ".."
-var Mime = require(TOP + "/module/Mime.js");
-var Path = require(TOP + "/module/Path.js");
+const Path = importPackage("cc.typedef.basic.Path");
+const Mime = importPackage("cc.typedef.net.Mime");
+
+const Util = importPackage("module.Util");
 
 function sendFile(context, fp, mimeType) {
-    console.log("about to send [" + fp + "] as [" + mimeType + "]" );
     if (!fp) {
         console.log("invalid call");
         context.reply(404);
@@ -49,6 +49,7 @@ function sendFile(context, fp, mimeType) {
     // content-type defaults to "text/plain"
     // if the content cannot be parsed as text, the browser will save content to file
     mimeType = mimeType || Mime.getMimeTypeByPath(fp) || "text/plain";
+    console.log("about to send [" + fp + "] as [" + mimeType + "]" );
 
     var ack = context.orig.ack;
     ack.setHeader('accept-ranges', 'bytes');

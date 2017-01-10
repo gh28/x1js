@@ -2,18 +2,65 @@
 
 "use strict";
 
-var fs = require("fs");
+global["_G"] = global;
+_G.assert = require("assert");
+_G.logd = console.log;
 
-var TOP = ".";
-require(TOP + "/supplement.js");
-var config = require("./config.json");
-var PORT = require("yargs").alias("port", "p").argv.port || config.port;
-var Path = require(TOP + "/module/Path.js");
+var getSubHierarchy = (function(dir) {
+    if (typeof(dir) === "undefined" || !dir) {
+        dir = process.env.PWD;
+    }
+    var TOP = dir;
+    return function(sub) {
+        if (typeof(sub) === "undefined" || !sub) {
+            return TOP;
+        }
+        if (sub[0] === '/') {
+            return TOP + sub;
+        } else {
+            return TOP + "/" + sub;
+        }
+    };
+})();
 
-var Context = require(TOP + "/module/Context.js");
-var MimeType = require(TOP + "/module/Mime.js");
-var Router = require(TOP + "/module/Router.js");
-var FileProvider = require(TOP + "/module/FileProvider.js");
+_G.importjs = function(path) {
+    assert(path, "E: invalid path [" + path + "]");
+    if (path.indexOf(".") != -1) {
+        return require(getSubHierarchy(path));
+    } else {
+        return require(path);
+    }
+};
+
+_G.importPackage = function(packageName) {
+    assert(packageName, "E: invalid package name [" + packageName + "]");
+    return importjs("src/" + packageName.split(".").join("/") + ".js");
+};
+
+importPackage("cc.typedef.framework.Supplement");
+
+////////
+
+const config = (function() {
+    var config = importjs("config.json");
+    for (var i in config.path) {
+        if (config.path.hasOwnProperty(i)) {
+            config.path[i] = getSubHierarchy(config.path[i]);
+        }
+    }
+    config.port = require("yargs").alias("port", "p").argv.port || config.port;
+    return config;
+})();
+
+////////
+
+const fs = require("fs");
+
+const Path = importPackage("cc.typedef.basic.Path");
+
+const Context = importPackage("module.Context");
+const Router = importPackage("module.Router");
+const FileProvider = importPackage("module.FileProvider");
 
 var router = new Router();
 router.addRule("/resume", function(context) {
@@ -45,7 +92,7 @@ router.addRule("/*", function(context) {
         context.orig.req.addListener("data", function(chunk) {
             chunks.push(chunk);
             length += chunk.length;
-            console.log("Received data chunk: " + chunk);
+            logd("Received data chunk: " + chunk);
         });
         context.orig.req.addListener("end", function() {
             var postedData = new Buffer(length);
@@ -71,6 +118,6 @@ require("http").createServer(function(request, response) {
     var context = new Context(request, response);
     router.route(context);
     return;
-}).listen(PORT);
+}).listen(config.port);
 
-console.log("Listening at " + PORT);
+logd("Listening at " + config.port);

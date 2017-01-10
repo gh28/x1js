@@ -1,0 +1,7 @@
+{
+    "path": {
+        "webroot": "asset/webroot",
+        "webpage": "asset/page"
+    },
+    "port": 8090
+}

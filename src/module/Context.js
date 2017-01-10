@@ -1,8 +1,7 @@
 "use strict";
 
-var TOP = "..";
-var Uri = require(TOP + "/module/Uri.js");
-var Dict = require(TOP + "/module/Dict.js");
+var Dict = importPackage("cc.typedef.basic.Dict");
+var Uri = importPackage("cc.typedef.net.Uri");
 
 function Context(request, response) {
     this.merge({
