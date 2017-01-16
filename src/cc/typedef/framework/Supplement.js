@@ -18,8 +18,9 @@ var NULS = "";
     if (typeof Object.prototype.alignPrototype === "undefined") {
         Object.prototype.alignPrototype = function(o) {
             if (typeof(o) == "object") {
-                this.__proto__ = o.__proto__;
-                this.constructor = o.constructor;
+                //this.__proto__ = o.__proto__;
+                //this.constructor = o.constructor;
+                Object.setPrototypeOf(this, o.prototype || null);
             }
             // for "class" it would be:
             // Subclass.prototype = Object.create(Superclass.prototype);
