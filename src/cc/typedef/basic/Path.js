@@ -19,6 +19,19 @@ Path.basename = function(path) {
     return segs[segs.length - 1];
 }
 
+Path.join = function() {
+    var path = arguments[0];
+    for (var i = 1; i < arguments.length; ++i) {
+        var seg = arguments[i];
+        if (seg[0] == '/') {
+            path += seg;
+        } else {
+            path += "/" + seg;
+        }
+    }
+    return path;
+}
+
 Path.normalize = function(path) {
     if (typeof path !== "string") {
         throw new Error("E: invalid argument: " + path);

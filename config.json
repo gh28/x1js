@@ -1,5 +1,6 @@
 {
     "path": {
+        "asset": "asset",
         "webroot": "asset/webroot",
         "webpage": "asset/page"
     },

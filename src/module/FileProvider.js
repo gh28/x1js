@@ -4,11 +4,15 @@ const fs = require("fs");
 const iconv = require("iconv-lite");
 const zlib = require("zlib");
 
+const File = importPackage("cc.typedef.basic.File");
 const Path = importPackage("cc.typedef.basic.Path");
 const Mime = importPackage("cc.typedef.net.Mime");
 
 const Util = importPackage("module.Util");
 
+/**
+ * read file content and send via file stream
+ */
 function sendFile(context, fp, mimeType) {
     if (!fp) {
         console.log("invalid call");
@@ -16,20 +20,21 @@ function sendFile(context, fp, mimeType) {
         return;
     }
 
+    var file = new File(fp);
     try {
-        var stats = fs.statSync(fp);
-        if (!stats.isFile()) {
+        file.loadStat();
+        if (!file.stat.isFile()) {
             throw new Error("not a file");
         }
     } catch(err) {
-        console.log("file status error: " + err.message);
+        console.log("file stat error: " + err.message);
         context.reply(404);
         return;
     }
 
     var ack = context.orig.ack;
 
-    var lastModified = stats.mtime.toUTCString();
+    var lastModified = file.stat.mtime.toUTCString();
     ack.setHeader("last-modified", lastModified);
     if (context.getReqHeader("if-modified-since") === lastModified) {
         // 304 Not Modified
@@ -38,7 +43,7 @@ function sendFile(context, fp, mimeType) {
     }
 
     if (/bytes=(.+)/.test(context.getReqHeader("range") || "")) {
-        context.current.aRange = Util.parseRange(RegExp.$1, stats.size);
+        context.current.aRange = Util.parseRange(RegExp.$1, file.stat.size);
         if (!context.current.aRange) {
             // 416 Requested Range Not Satisfiable
             context.reply(416);
@@ -68,10 +73,10 @@ function sendFile(context, fp, mimeType) {
     if (!context.current.allowsCompressing) {
         if (context.current.aRange) {
             ack.setHeader("content-range",
-                    "bytes " + aRange[0] + "-" + aRange[1] + "/" + stats.size);
+                    "bytes " + aRange[0] + "-" + aRange[1] + "/" + file.stat.size);
             ack.setHeader("content-length", aRange[1] - aRange[0] + 1);
         } else {
-            ack.setHeader("content-length", stats.size);
+            ack.setHeader("content-length", file.stat.size);
         }
     }
     if (context.current.aRange) {
@@ -103,7 +108,7 @@ function sendFile(context, fp, mimeType) {
     stream.pipe(ack);
 }
 
-var simpleFile = function(context, fp, mimeType) {
+function simpleFile(context, fp, mimeType) {
     var ack = context.orig.ack;
     fs.readFile(fp, function(error, data) {
         if (error) {
@@ -118,7 +123,7 @@ var simpleFile = function(context, fp, mimeType) {
         ack.write(data);
         ack.end();
     });
-};
+}
 
 module.exports = {
     "sendFile" : sendFile,

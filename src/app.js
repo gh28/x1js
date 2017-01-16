@@ -48,6 +48,12 @@ const config = (function() {
             config.path[i] = getSubHierarchy(config.path[i]);
         }
     }
+    config.path.getAsset = function(seg) {
+        return Path.join(config.path.asset, seg);
+    }
+    config.path.getPage = function(seg) {
+        return Path.join(config.path.webpage, seg);
+    }
     config.port = require("yargs").alias("port", "p").argv.port || config.port;
     return config;
 })();
@@ -64,7 +70,7 @@ const FileProvider = importPackage("module.FileProvider");
 
 var router = new Router();
 router.addRule("/resume", function(context) {
-    var fp = config.path.webpage + "/resume";
+    var fp = config.path.getPage("resume");
     FileProvider.sendFile(context, fp, "text/html");
     return true;
 });
