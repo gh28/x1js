@@ -30,7 +30,7 @@ for line in open(gflags.FLAGS["filepath"].value):
         continue;
 
     if (numTotalLines - numEmptyLines == 2):
-        if (utf8Len < 12):
+        if regex.match("^作者：.+", line) or (utf8Len < 12):
             meta["author"] = line;
             print "<h2>" + line + "</h2>";
             continue;

@@ -112,6 +112,22 @@ router.addRule("/view", function(context) {
         // TODO scan and index
         if (context.uri.path.match("/story/(.*)")) {
             var key = RegExp.$1;
+            if (key == "ls") {
+                if (context.uri.query.code != "233") {
+                    return false;
+                }
+                var menu = "";
+                for (var key in storyDict) {
+                    if (storyDict.hasOwnProperty(key)) {
+                        var value = Path.basename(storyDict[key]);
+                        var end = value.lastIndexOf('.');
+                        value = value.substring(0, end);
+                        menu += key + " " + value + "\n";
+                    }
+                }
+                FileProvider.sendData(context, "text/plain", menu);
+                return true;
+            }
             var filepath = storyDict[key];
             if (filepath) {
                 var sketch = fs.readFileSync(config.path.getPage("story"));
