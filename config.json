@@ -1,6 +1,7 @@
 {
     "path": {
         "asset": "asset",
+        "bin": "toolkit",
         "webroot": "asset/webroot",
         "webpage": "asset/page"
     },

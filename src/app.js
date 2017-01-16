@@ -51,6 +51,9 @@ const config = (function() {
     config.path.getAsset = function(seg) {
         return Path.join(config.path.asset, seg);
     }
+    config.path.getBin = function(seg) {
+        return Path.join(config.path.bin, seg);
+    }
     config.path.getPage = function(seg) {
         return Path.join(config.path.webpage, seg);
     }
