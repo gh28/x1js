@@ -1,7 +1,8 @@
 {
     "path": {
         "asset": "asset",
-        "bin": "toolkit",
+        "bin": "bin",
+        "story": "asset/story",
         "webroot": "asset/webroot",
         "webpage": "asset/page"
     },

@@ -23,10 +23,12 @@ Path.join = function() {
     var path = arguments[0];
     for (var i = 1; i < arguments.length; ++i) {
         var seg = arguments[i];
-        if (seg[0] == '/') {
-            path += seg;
-        } else {
-            path += "/" + seg;
+        if (seg) {
+            if (seg[0] == '/') {
+                path += seg;
+            } else {
+                path += "/" + seg;
+            }
         }
     }
     return path;

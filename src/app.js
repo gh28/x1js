@@ -57,6 +57,9 @@ const config = (function() {
     config.path.getPage = function(seg) {
         return Path.join(config.path.webpage, seg);
     }
+    config.path.getStory = function(seg) {
+        return Path.join(config.path.story, seg);
+    }
     config.port = require("yargs").alias("port", "p").argv.port || config.port;
     return config;
 })();
@@ -83,17 +86,46 @@ router.addRule("/view", function(context) {
     FileProvider.sendFile(context, fp, "text/html");
     return true;
 });
-router.addRule("/story/*", function(context) {
-    // TODO as RESTful api:
-    //  CU, idempotent      PUT path/id
-    //  C, non-idempotent   POST path
-    //  R, idempotent       GET path/id
-    //  U, non-idempotent   PATCH path/id
-    //  D, idempotent       DELETE path/id
-    // query as filter
-    // TODO scan and index
-    return true;
-});
+
+{
+    var storyDict = {};
+    var buffer = require('child_process').execSync(
+        "bash " + config.path.getBin("fnHash.sh") + " " + config.path.getStory());
+    var lines = buffer.toString("utf8").split("\n");
+    for (var i = 0; i < lines.length; ++i) {
+        var line = lines[i];
+        var j = line.indexOf(" ");
+        if (j > 0) {
+            var key = line.substring(0, j);
+            var filepath = line.substring(j + 1);
+            storyDict[key] = filepath;
+        }
+    }
+    router.addRule("/story/*", function(context) {
+        // TODO as RESTful api:
+        //  CU, idempotent      PUT path/id
+        //  C, non-idempotent   POST path
+        //  R, idempotent       GET path/id
+        //  U, non-idempotent   PATCH path/id
+        //  D, idempotent       DELETE path/id
+        // query as filter
+        // TODO scan and index
+        if (context.uri.path.match("/story/(.*)")) {
+            var key = RegExp.$1;
+            var filepath = storyDict[key];
+            if (filepath) {
+                var sketch = fs.readFileSync(config.path.getPage("story"));
+                var content = require('child_process').execSync(
+                    "python " + config.path.getBin("tx2html.py") + " -f \"" + filepath + "\"");
+                FileProvider.sendData(context, "text/html",
+                    sketch, "<div class=\"content\">", content, "</div></body></html>");
+                return true;
+            }
+        }
+        return false;
+    });
+}
+
 router.addRule("/*", function(context) {
     if (context.orig.req.method === "POST") {
         var chunks = [];
