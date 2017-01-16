@@ -21,6 +21,9 @@ var NULS = "";
                 this.__proto__ = o.__proto__;
                 this.constructor = o.constructor;
             }
+            // for "class" it would be:
+            // Subclass.prototype = Object.create(Superclass.prototype);
+            // Subclass.prototype.constructor = Subclass;
         }
     }
     if (typeof Object.prototype.copy === "undefined") {
