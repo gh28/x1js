@@ -13,14 +13,14 @@ const Util = importPackage("module.Util");
 /**
  * read file content and send via file stream
  */
-function sendFile(context, fp, mimeType) {
-    if (!fp) {
+function sendFile(context, filepath, mimeType) {
+    if (!filepath) {
         console.log("invalid call");
         context.reply(404);
         return;
     }
 
-    var file = new File(fp);
+    var file = new File(filepath);
     try {
         file.loadStat();
         if (!file.stat.isFile()) {
@@ -53,13 +53,12 @@ function sendFile(context, fp, mimeType) {
 
     // content-type defaults to "text/plain"
     // if the content cannot be parsed as text, the browser will save content to file
-    mimeType = mimeType || Mime.getMimeTypeByPath(fp) || "text/plain";
-    console.log("about to send [" + fp + "] as [" + mimeType + "]" );
+    mimeType = mimeType || Mime.getMimeTypeByPath(file.path) || "text/plain";
+    console.log("about to send [" + file.path + "] as [" + mimeType + "]" );
 
-    var ack = context.orig.ack;
     ack.setHeader('accept-ranges', 'bytes');
 
-    var fn = iconv.encode(Path.basename(fp), "iso8859-1");
+    var fn = iconv.encode(Path.basename(file.path), "iso8859-1");
     if (context.getReqHeader("accept-attachment")) {
         ack.setHeader("content-disposition", "attachment;filename=" + fn);
         ack.setHeader("content-type", "application/octet-stream");
@@ -81,13 +80,13 @@ function sendFile(context, fp, mimeType) {
     }
     if (context.current.aRange) {
         ack.statusCode = 206;
-        var stream = fs.createReadStream(fp, {
+        var stream = fs.createReadStream(file.path, {
             "start": aRange[0],
             "end": aRange[1]
         });
     } else {
         ack.statusCode = 200;
-        var stream = fs.createReadStream(fp);
+        var stream = fs.createReadStream(file.path);
     }
     if (context.current.allowsCompressing) {
         var sEncodings = context.getReqHeader("accept-encoding") || "";
@@ -108,24 +107,18 @@ function sendFile(context, fp, mimeType) {
     stream.pipe(ack);
 }
 
-function simpleFile(context, fp, mimeType) {
+function sendData(context, mimeType) {
     var ack = context.orig.ack;
-    fs.readFile(fp, function(error, data) {
-        if (error) {
-            console.log("file status error: " + JSON.stringify(error) + "\n");
-            context.reply(404);
-            return;
-        }
-
-        ack.writeHead(200, {
-            "content-type": mimeType || Mime.getMimeTypeByPath(fp) || "application/octet-stream",
-        });
-        ack.write(data);
-        ack.end();
+    ack.writeHead(200, {
+        "content-type": mimeType || "application/octet-stream",
     });
+    for (var i = 2; i < arguments.length; ++i) {
+        ack.write(arguments[i]);
+    }
+    ack.end();
 }
 
 module.exports = {
+    "sendData" : sendData,
     "sendFile" : sendFile,
-    "simpleFile" : simpleFile,
 };
