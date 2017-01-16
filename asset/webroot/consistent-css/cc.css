@@ -24,6 +24,13 @@
 .cc-color-orange { color: #E47911; }
 .cc-color-red { color: #900; }
 
+.cc-text-size { font-size: 14px; }
+.cc-text-size-minor, .cc-text-size-small { font-size: 12px; }
+.cc-text-size-major, .cc-text-size-large { font-size: 18px; }
+.cc-text-size-huge { font-size: 24px; }
+.cc-text-size-mega { font-size: 30px; }
+.cc-text-size-giga { font-size: 42px; }
+
 /**** but ... business specific !!! ****/
 
 .item .title {
