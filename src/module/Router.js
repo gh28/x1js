@@ -35,6 +35,4 @@ Router.prototype.route = function(context) {
     }
 }
 
-if (module) {
-    module.exports = Router;
-}
+module.exports = Router;

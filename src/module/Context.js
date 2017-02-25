@@ -1,7 +1,7 @@
 "use strict";
 
-var Dict = importPackage("cc.typedef.basic.Dict");
-var Uri = importPackage("cc.typedef.net.Uri");
+var Dict = importjs("cc.typedef.basic.Dict");
+var Uri = importjs("cc.typedef.net.Uri");
 
 function Context(request, response) {
     this.merge({
@@ -31,6 +31,4 @@ Context.prototype.reply = function(statusCode, message) {
     ack.end();
 }
 
-if (module) {
-    module.exports = Context;
-}
+module.exports = Context;

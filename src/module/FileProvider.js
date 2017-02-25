@@ -4,11 +4,11 @@ const fs = require("fs");
 const iconv = require("iconv-lite");
 const zlib = require("zlib");
 
-const File = importPackage("cc.typedef.basic.File");
-const Path = importPackage("cc.typedef.basic.Path");
-const Mime = importPackage("cc.typedef.net.Mime");
+const File = importjs("cc.typedef.basic.File");
+const Path = importjs("cc.typedef.basic.Path");
+const Mime = importjs("cc.typedef.net.Mime");
 
-const Util = importPackage("module.Util");
+const Util = importjs("module.Util");
 
 /**
  * read file content and send via file stream

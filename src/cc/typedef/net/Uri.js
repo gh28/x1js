@@ -2,7 +2,7 @@
 
 // rfc3986
 
-const Dict = importPackage("cc.typedef.basic.Dict");
+const Dict = importjs("cc.typedef.basic.Dict");
 
 // to parse uri(mostly url) into an object and reverse
 // see http://docs.oracle.com/javase/1.5.0/docs/api/java/net/URI.html

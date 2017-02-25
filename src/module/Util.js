@@ -32,7 +32,7 @@ function parseRange(sRange, size) {
     return [b, e];
 }
 
-if (module) {
+if (isServerSide) {
     module.exports = {
         parseRange: parseRange
     };

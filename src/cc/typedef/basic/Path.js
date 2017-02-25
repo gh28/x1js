@@ -36,7 +36,7 @@ Path.join = function() {
 
 Path.normalize = function(path) {
     if (typeof path !== "string") {
-        throw new Error("E: invalid argument: " + path);
+        throw "E: invalid argument: " + path;
     }
     var isAbsolute = Path.isAbsolute(path);
     var segs = path2segs(path);
@@ -94,9 +94,9 @@ Path.relativize = function(base, combined) {
 }
 
 Path.resolve = function(base, relative) {
-    if (typeof base !== "string"
-            || typeof relative !== "string") {
-        throw new Error("invalid argument: " + base + ", " + relative);
+    if (typeof base != "string"
+            || typeof relative != "string") {
+        throw new Error("E: invalid argument: " + base + ", " + relative);
     }
 
     if (!base || relative.startsWith("/")) {

@@ -1,6 +1,6 @@
 "use strict";
 
-const Path = importPackage("cc.typedef.basic.Path");
+const Path = importjs("cc.typedef.basic.Path");
 
 // a virtual file
 var File = function(path) {

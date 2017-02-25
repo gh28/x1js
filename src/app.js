@@ -2,50 +2,15 @@
 
 "use strict";
 
-global["_G"] = global;
-_G.assert = require("assert");
-_G.logd = console.log;
-
-var getSubHierarchy = (function(dir) {
-    if (typeof(dir) === "undefined" || !dir) {
-        dir = process.env.PWD;
-    }
-    var TOP = dir;
-    return function(sub) {
-        if (typeof(sub) === "undefined" || !sub) {
-            return TOP;
-        }
-        if (sub[0] === '/') {
-            return TOP + sub;
-        } else {
-            return TOP + "/" + sub;
-        }
-    };
-})();
-
-_G.importjs = function(path) {
-    assert(path, "E: invalid path [" + path + "]");
-    if (path.indexOf(".") != -1) {
-        return require(getSubHierarchy(path));
-    } else {
-        return require(path);
-    }
-};
-
-_G.importPackage = function(packageName) {
-    assert(packageName, "E: invalid package name [" + packageName + "]");
-    return importjs("src/" + packageName.split(".").join("/") + ".js");
-};
-
-importPackage("cc.typedef.framework.Supplement");
+require("./cc/typedef/lang/fixNodejs.js");
 
 ////////
 
 const config = (function() {
-    var config = importjs("config.json");
+    var config = importjs(resolvePath("config.json"));
     for (var i in config.path) {
         if (config.path.hasOwnProperty(i)) {
-            config.path[i] = getSubHierarchy(config.path[i]);
+            config.path[i] = resolvePath(config.path[i]);
         }
     }
     config.path.getAsset = function(seg) {
@@ -66,13 +31,13 @@ const config = (function() {
 
 ////////
 
-const fs = require("fs");
+const fs = importjs("fs");
 
-const Path = importPackage("cc.typedef.basic.Path");
+const Path = importjs("cc.typedef.basic.Path");
 
-const Context = importPackage("module.Context");
-const Router = importPackage("module.Router");
-const FileProvider = importPackage("module.FileProvider");
+const Context = importjs("module.Context");
+const Router = importjs("module.Router");
+const FileProvider = importjs("module.FileProvider");
 
 var router = new Router();
 router.addRule("/resume", function(context) {

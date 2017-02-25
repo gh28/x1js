@@ -1,6 +1,6 @@
 "use strict";
 
-var Dict = function() {
+const Dict = function() {
 };
 
 Dict.prototype.clear = function() {
@@ -75,6 +75,6 @@ Dict.byOneLine = function(s, spMajor, spMinor) {
     return o;
 };
 
-if (module) {
+if (isServerSide) {
     module.exports = Dict;
 }
