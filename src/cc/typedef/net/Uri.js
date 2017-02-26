@@ -2,7 +2,7 @@
 
 // rfc3986
 
-const Dict = importjs("cc.typedef.basic.Dict");
+const Mappin = importjs("cc.typedef.lang.Mappin");
 
 // to parse uri(mostly url) into an object and reverse
 // see http://docs.oracle.com/javase/1.5.0/docs/api/java/net/URI.html
@@ -122,7 +122,7 @@ function parseSchemeSpecificPart(uri) {
         uri.pass = captured[3];
     }
 
-    uri.query = Dict.byOneLine(uri.query || "", "&", "=");
+    uri.query = Mappin.byOneLine.call({}, uri.query || "", "&", "=");
 
     // test: "//user:pass@host:port/path?query"
     // test: "///usr/local/bin/aaa"

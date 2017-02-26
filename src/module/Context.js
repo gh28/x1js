@@ -1,16 +1,16 @@
 "use strict";
 
-var Dict = importjs("cc.typedef.basic.Dict");
+var Mappin = importjs("cc.typedef.lang.Mappin");
 var Uri = importjs("cc.typedef.net.Uri");
 
 function Context(request, response) {
-    this.merge({
+    Mappin.merge.call(this, {
         "orig": {
             "req": request,
             "ack": response,
         },
         "uri": Uri.parse(request.url),
-        "cookie": Dict.byOneLine(request.headers["cookie"] || "", ";", "="),
+        "cookie": Mappin.byOneLine.call({}, request.headers["cookie"] || "", ";", "="),
         "current": {
         },
     });

@@ -32,8 +32,6 @@ function parseRange(sRange, size) {
     return [b, e];
 }
 
-if (isServerSide) {
-    module.exports = {
-        parseRange: parseRange
-    };
-}
+module.exports = {
+    parseRange: parseRange
+};

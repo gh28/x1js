@@ -2,13 +2,11 @@
 
 "use strict";
 
-global._G = global;
-
-_G.isServerSide = true;
-_G.isClientSide = false;
+Object.defineProperties(global, {
+    "_G": { "value": global }
+});
 
 _G.assert = require("assert");
-_G.logd = console.log;
 
 _G.resolvePath = (function() {
     const TOP = process.env.PWD;
@@ -39,6 +37,8 @@ _G.importjs = function(qualified) {
         // dummy
     }
     return require(qualified);
-}
+};
 
-importjs("cc.typedef.lang.fixjs");
+importjs("cc.typedef.lang.fixlang");
+importjs("cc.typedef.lang.Mappin");
+importjs("cc.typedef.lang.String");

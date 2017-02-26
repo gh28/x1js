@@ -118,10 +118,10 @@ router.addRule("/*", function(context) {
         });
         context.orig.req.addListener("end", function() {
             var postedData = new Buffer(length);
-            for (var i = 0, p = 0; i < chunks.length; ++i) {
+            for (var i = 0, start = 0; i < chunks.length; ++i) {
                 var chunk = chunks[i];
-                chunk.copy(postedData, p);
-                p += chunk.length;
+                chunk.copy(postedData, start);
+                start += chunk.length;
             }
             context.current.posted = postedData;
             // TODO next logic
