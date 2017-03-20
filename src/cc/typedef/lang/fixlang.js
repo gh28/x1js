@@ -8,6 +8,10 @@ _G.isNull = function(o) {
     return typeof(o) == "undefined" || o == null;
 };
 
+_G.isNumber = function(o) {
+    return typeof(o) == "number";
+};
+
 _G.isCallable = function(o) {
     return typeof(o) == "function";
 };

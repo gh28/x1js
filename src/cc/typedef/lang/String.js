@@ -17,3 +17,17 @@ Object.defineProperties(String.prototype, {
         }
     }
 });
+
+String.compare = function(s) {
+    var caller = this;
+    if (caller == s)  {
+        return 0;
+    }
+    if (caller == null) {
+        return -1;
+    }
+    if (s == null) {
+        return 1;
+    }
+    return caller < s ? -1 : 1;
+}
