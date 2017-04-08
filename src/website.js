@@ -47,7 +47,7 @@ router.addRule("/resume", function(context) {
 });
 router.addRule("/view", function(context) {
     var fp = config.path.webpage + Path.normalize("/" + decodeURIComponent(
-            context.uri.query["fn"] || "demo"));
+            context.uri.query["fn"] || "demo.html"));
     FileProvider.sendFile(context, fp, "text/html");
     return true;
 });
