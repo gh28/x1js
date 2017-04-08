@@ -6,11 +6,13 @@ require("./cc/typedef/lang/fixNodejs.js");
 
 ////////
 
+var CONFIG = "./config"
+
 const config = (function() {
-    var config = importjs(resolvePath("config.json"));
+    var config = importjs(locate("config.json"));
     for (var i in config.path) {
         if (config.path.hasOwnProperty(i)) {
-            config.path[i] = resolvePath(config.path[i]);
+            config.path[i] = locate(config.path[i]);
         }
     }
     config.path.getAsset = function(seg) {

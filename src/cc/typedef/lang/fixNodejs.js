@@ -8,18 +8,21 @@ Object.defineProperties(global, {
 
 _G.assert = require("assert");
 
-_G.resolvePath = (function() {
-    const TOP = process.env.PWD;
-    return function(path) {
-        // resolve(TOP, path)
-        assert(typeof(path) == "string" && path);
-        if (path[0] == '/') {
-            return TOP + path;
-        } else {
-            return TOP + "/" + path;
+_G.locate = function() {
+    var path = process.env.PWD;
+    for (var i in arguments) {
+        var seg = arguments[i];
+        assert (typeof(seg) == "string");
+        if (seg && seg != '/') {
+            if (seg[0] == '/') {
+                path += seg;
+            } else {
+                path += '/' + seg;
+            }
         }
-    };
-})();
+    }
+    return path;
+}
 
 _G.importjs = function(qualified) {
     assert(typeof(qualified) == "string" && qualified,
@@ -29,7 +32,7 @@ _G.importjs = function(qualified) {
         // dummy
     } else if (qualified.indexOf(".") >= 0) {
         // qualified name to qualified path
-        qualified = resolvePath("src/" + qualified.split(".").join("/") + ".js");
+        qualified = locate("src", qualified.split(".").join("/") + ".js");
     } else {
         // nodejs platform library
         // dummy
