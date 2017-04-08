@@ -53,7 +53,7 @@ Mappin.ownKeys = function() {
     return ownKeys;
 }
 
-Mappin.byOneLine = function(s, spMajor, spMinor) {
+Mappin.fromOneLine = function(s, spMajor, spMinor) {
     const caller = this;
     if (typeof s != "string") {
         throw "E: invalid argument [" + s + "]";

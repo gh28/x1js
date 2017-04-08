@@ -12,9 +12,7 @@ _G.resolvePath = (function() {
     const TOP = process.env.PWD;
     return function(path) {
         // resolve(TOP, path)
-        if (typeof(path) != "string" || !path) {
-            throw "E: invalid argument [" + path + "]";
-        }
+        assert(typeof(path) == "string" && path);
         if (path[0] == '/') {
             return TOP + path;
         } else {

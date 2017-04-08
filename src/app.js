@@ -25,7 +25,7 @@ const config = (function() {
     config.path.getStory = function(seg) {
         return Path.join(config.path.story, seg);
     }
-    config.port = require("yargs").alias("port", "p").argv.port || config.port;
+    config.port = require("yargs").alias("port", "p").argv.port || 8090;
     return config;
 })();
 
@@ -55,7 +55,7 @@ router.addRule("/view", function(context) {
 {
     var storyDict = {};
     var buffer = require('child_process').execSync(
-        "bash " + config.path.getBin("fnHash.sh") + " " + config.path.getStory());
+            "bash " + config.path.getBin("fnHash.sh") + " " + config.path.getStory());
     var lines = buffer.toString("utf8").split("\n");
     for (var i = 0; i < lines.length; ++i) {
         var line = lines[i];
@@ -108,15 +108,15 @@ router.addRule("/view", function(context) {
 }
 
 router.addRule("/*", function(context) {
-    if (context.orig.req.method === "POST") {
+    if (context.req.method === "POST") {
         var chunks = [];
         var length = 0;
-        context.orig.req.addListener("data", function(chunk) {
+        context.req.addListener("data", function(chunk) {
             chunks.push(chunk);
             length += chunk.length;
             logd("Received data chunk: " + chunk);
         });
-        context.orig.req.addListener("end", function() {
+        context.req.addListener("end", function() {
             var postedData = new Buffer(length);
             for (var i = 0, start = 0; i < chunks.length; ++i) {
                 var chunk = chunks[i];
@@ -134,12 +134,12 @@ router.addRule("/*", function(context) {
     }
 });
 
+const port = require("yargs").alias("port", "p").argv.port || 8090;
 require("http").createServer(function(request, response) {
     request.setEncoding("binary");
     response.setHeader("server", "node.js/v6");
     var context = new Context(request, response);
     router.route(context);
     return;
-}).listen(config.port);
-
-logd("Listening at " + config.port);
+}).listen(port);
+logd("Listening at " + port);

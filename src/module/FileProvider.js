@@ -32,7 +32,7 @@ function sendFile(context, filepath, mimeType) {
         return;
     }
 
-    var ack = context.orig.ack;
+    var ack = context.ack;
 
     var lastModified = file.stat.mtime.toUTCString();
     ack.setHeader("last-modified", lastModified);
@@ -108,14 +108,13 @@ function sendFile(context, filepath, mimeType) {
 }
 
 function sendData(context, mimeType) {
-    var ack = context.orig.ack;
-    ack.writeHead(200, {
+    this.ack.writeHead(200, {
         "content-type": mimeType || "application/octet-stream",
     });
     for (var i = 2; i < arguments.length; ++i) {
-        ack.write(arguments[i]);
+        this.ack.write(arguments[i]);
     }
-    ack.end();
+    this.ack.end();
 }
 
 module.exports = {
