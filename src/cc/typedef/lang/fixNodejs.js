@@ -8,6 +8,10 @@ Object.defineProperties(global, {
 
 _G.assert = require("assert");
 
+require("./fixlang.js");
+require("./Mappin.js");
+require("./String.js");
+
 _G.locate = function() {
     var path = process.env.PWD;
     for (var i in arguments) {
@@ -22,24 +26,46 @@ _G.locate = function() {
         }
     }
     return path;
-}
+};
 
 _G.importjs = function(qualified) {
     assert(typeof(qualified) == "string" && qualified,
         "E: invalid argument [" + qualified + "]");
+
+    const LOCAL_SRC_DIR = "src";
+
+    var qualifiedName = null;
+    var qualifiedPath = null;
     if (qualified.indexOf("/") >= 0) {
         // already qualified path
-        // dummy
+        qualifiedPath = qualified;
     } else if (qualified.indexOf(".") >= 0) {
-        // qualified name to qualified path
-        qualified = locate("src", qualified.split(".").join("/") + ".js");
+        qualifiedName = qualified;
+        var hierarchy = qualifiedName.split(".");
+        qualifiedPath = locate(LOCAL_SRC_DIR, hierarchy.join("/") + ".js");
+        // add "package" to namespace
+        var scope = _G;
+        for (var i in hierarchy) {
+            var seg = hierarchy[i];
+            if (i != hierarchy.length - 1) {
+                if (typeof(scope[seg]) == "undefined") {
+                    scope[seg] = {};
+                } else if (typeof(scope[seg]) != "object") {
+                    throw new Error("E: conflict package");
+                }
+                scope = scope[seg];
+            } else {
+                // TODO assert seg is an identifier
+                if (typeof(scope[seg]) == "undefined") {
+                    scope[seg] = require(qualifiedPath);
+                } else if (! scope[seg] instanceof Object) {
+                    throw new Error("E: conflict class");
+                }
+            }
+        }
     } else {
         // nodejs platform library
-        // dummy
+        qualifiedPath = qualified;
     }
-    return require(qualified);
+    return require(qualifiedPath);
 };
-
-importjs("cc.typedef.lang.fixlang");
-importjs("cc.typedef.lang.Mappin");
-importjs("cc.typedef.lang.String");
