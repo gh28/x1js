@@ -108,13 +108,13 @@ function sendFile(context, filepath, mimeType) {
 }
 
 function sendData(context, mimeType) {
-    this.ack.writeHead(200, {
+    context.ack.writeHead(200, {
         "content-type": mimeType || "application/octet-stream",
     });
     for (var i = 2; i < arguments.length; ++i) {
-        this.ack.write(arguments[i]);
+        context.ack.write(arguments[i]);
     }
-    this.ack.end();
+    context.ack.end();
 }
 
 module.exports = {
