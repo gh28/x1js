@@ -1,5 +1,7 @@
 "use strict";
 
+const fs = importjs("fs");
+
 const Path = importjs("cc.typedef.basic.Path");
 
 // a virtual file
@@ -22,7 +24,6 @@ File.prototype.clear = function() {
 
 File.prototype.loadStat = function() {
     if (typeof(this.path) === "string" && this.path) {
-        const fs = require("fs");
         this.stat = fs.statSync(this.path);
         return true;
     }
@@ -32,11 +33,27 @@ File.prototype.loadStat = function() {
 File.prototype.load = function() {
     this.loadStat();
     if (this.stat.isFile()) {
-        const fs = require("fs");
         this.buff = fs.readFileSync(this.path);
     }
 }
 
-if (module) {
-    module.exports = File;
-}
+File.exists = function() {
+    var caller = this;
+    try {
+        fs.statSync(caller.path);
+        return true;
+    } catch (e) {
+        if (e.code == "ENOENT") {
+            return false;
+        } else {
+            throw e;
+        }
+    }
+};
+
+File.save = function(s) {
+    var caller = this;
+    fs.writeFileSync(caller.path, s);
+};
+
+module.exports = File;
