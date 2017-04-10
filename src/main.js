@@ -24,7 +24,7 @@ var router = new Router();
 var register = function(uriPath, handler) {
     router.addRule(uriPath, handler);
 };
-importjs("module.Sentinel").init(register, config.path["webpage"]);
+importjs("plugin.Sentinel").init(register, config.path["asset"]);
 
 {
     var storyDict = {};
