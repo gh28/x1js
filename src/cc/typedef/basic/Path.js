@@ -35,19 +35,16 @@ Path.join = function() {
 }
 
 Path.normalize = function(path) {
-    if (typeof path !== "string") {
-        throw "E: invalid argument: " + path;
-    }
     var isAbsolute = Path.isAbsolute(path);
     var segs = path2segs(path);
     for (var i = 0; i < segs.length;) {
-        if (!segs[i] || segs[i] === ".") {
+        if (segs[i].isEmpty() || segs[i].equals(".")) {
             segs.splice(i, 1);
             continue;
         }
-        if (segs[i] === "..") {
+        if (segs[i].equals("..")) {
             if (i > 0) {
-                if (segs[i - 1] !== "..") {
+                if (!segs[i - 1].equals("..")) {
                     segs.splice(i - 1, 2);
                     --i;
                     continue;
@@ -66,11 +63,6 @@ Path.normalize = function(path) {
 }
 
 Path.relativize = function(base, combined) {
-    if (typeof base !== "string"
-            || typeof combined != "string") {
-        throw new Error("invalid argument: " + base + ", " + combined);
-    }
-
     if (!combined.startsWith("/")) {
         return combined;
     }
@@ -80,7 +72,7 @@ Path.relativize = function(base, combined) {
     while (srcSegs.length > 0 && dstSegs.length > 0) {
         var a1 = srcSegs.shift();
         var b1 = dstSegs.shift();
-        if (a1 !== b1) {
+        if (!a1.equals(b1)) {
             srcSegs.unshift(a1);
             dstSegs.unshift(b1);
             break;
@@ -94,23 +86,27 @@ Path.relativize = function(base, combined) {
 }
 
 Path.resolve = function(base, relative) {
-    if (typeof base != "string"
-            || typeof relative != "string") {
-        throw new Error("E: invalid argument: " + base + ", " + relative);
+    var start = 0;
+    for (var i = 0; i < arguments.length; ++i) {
+        if (!arguments[i].isEmpty()) {
+            start = i;
+            break;
+        }
+    }
+    for (var i = start + 1; i < arguments.length; ++i) {
+        if (arguments[i].startsWith("/")) {
+            start = i;
+        }
     }
 
-    if (!base || relative.startsWith("/")) {
-        return relative;
+    var combined = arguments[start];
+    for (var i = start + 1; i < arguments.length; ++i) {
+        var s = arguments[i];
+        if (!s.isEmpty()) {
+            combined += "/" + s;
+        }
     }
-
-    if (isDirectory(base)) {
-        base = base + "/" + relative;
-    } else {
-        base = base + "/../" + relative;
-    }
-    return normalize(base);
+    return Path.normalize(combined);
 }
 
-if (module) {
-    module.exports = Path;
-}
+module.exports = Path;
