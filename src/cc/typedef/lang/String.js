@@ -4,6 +4,16 @@ Object.defineProperties(String.prototype, {
     "codeAt": {
         "value": String.prototype.codePointAt
     },
+    "equals": {
+        "value": function(s) {
+            return this == s;
+        }
+    },
+    "isEmpty": {
+        "value": function() {
+            return this == "";
+        }
+    },
     "trim": {
         "value": function() {
             return this.replace(/(^\s*)|(\s*$)/g, "");
