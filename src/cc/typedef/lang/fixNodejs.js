@@ -6,11 +6,9 @@ Object.defineProperties(global, {
     "_G": { "value": global }
 });
 
-_G.assert = require("assert");
-
 require("./fixlang.js");
-require("./Mappin.js");
-require("./String.js");
+
+_G.assert = require("assert");
 
 _G.locate = function() {
     var path = process.env.PWD;

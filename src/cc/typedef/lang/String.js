@@ -1,6 +1,9 @@
 "use strict";
 
 Object.defineProperties(String.prototype, {
+    "codeAt": {
+        "value": String.prototype.codePointAt
+    },
     "trim": {
         "value": function() {
             return this.replace(/(^\s*)|(\s*$)/g, "");

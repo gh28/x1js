@@ -1,16 +1,15 @@
-// design functions that calls with an object, assuming the object has corresponding fields
-// I names 'struct-based design'
-
 "use strict";
 
 /**
  *  in javascript, Object is too wide a thing.
  *  let's define Mappin as a narrowed Object, as Json Object, associative array, map, dictionary
  *  Mappin is not a function, not an array, not a string
+ *
+ *  a function can be every object's "member method", iff the object has corresponding fields
+ *  I call it "struct-based design"
  */
-const Mappin = function() {
+_G.Mappin = function() {
 };
-_G.Mappin = Mappin;
 
 Mappin.clear = function() {
     const caller = this;

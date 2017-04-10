@@ -2,6 +2,9 @@
 
 "use strict";
 
+require("./Mappin.js");
+require("./String.js");
+
 _G.logd = console.log;
 
 _G.isNull = function(o) {
@@ -27,11 +30,6 @@ _G.isVector = function(o) {
 
 _G.isMappin = function(o) {
     return typeof(o) == "object" && !(o instanceof Array);
-};
-
-_G.codeAt = function(s, i) {
-    assert(isString(s));
-    return s.codePointAt(i);
 };
 
 Object.defineProperties(Object.prototype, {
