@@ -25,7 +25,7 @@ Config.load = function(path) {
         }
         path = DEFAULT_CONFIG_PATH;
     }
-    path = Path.normalize(locate(path));
+    path = locate(path);
     logd("loading [" + path + "]");
     return require(path);
 }

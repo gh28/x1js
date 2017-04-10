@@ -12,7 +12,8 @@ function init(register, pathPrefix) {
     register("/view", function(context) {
         if (context.uri.query["q"]) {
             var q = decodeURIComponent(context.uri.query["q"]);
-            FileProvider.sendFile(context, locate(pathPrefix, Path.normalize("/" + q)), "text/html");
+            var qPath = Path.normalize("/" + q).substring(1);
+            FileProvider.sendFile(context, locate(pathPrefix, qPath), "text/html");
         } else {
             FileProvider.sendFile(context, null);
         }

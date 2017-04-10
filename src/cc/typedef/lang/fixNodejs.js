@@ -7,23 +7,13 @@ Object.defineProperties(global, {
 });
 
 require("./fixlang.js");
+const Path = require("../io/Path.js");
 
 _G.assert = require("assert");
 
 _G.locate = function() {
-    var path = process.env.PWD;
-    for (var i in arguments) {
-        var seg = arguments[i];
-        assert (typeof(seg) == "string");
-        if (seg && seg != '/') {
-            if (seg[0] == '/') {
-                path += seg;
-            } else {
-                path += '/' + seg;
-            }
-        }
-    }
-    return path;
+    Array.prototype.unshift.call(arguments, process.env.PWD);
+    return Path.resolve.apply(arguments, arguments);
 };
 
 _G.importjs = function(qualified) {
