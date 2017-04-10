@@ -1,9 +1,0 @@
-{
-    "path": {
-        "asset": "asset",
-        "bin": "bin",
-        "story": "asset/story",
-        "webroot": "asset/webroot",
-        "webpage": "asset/page"
-    }
-}

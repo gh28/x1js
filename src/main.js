@@ -6,30 +6,9 @@ require("./cc/typedef/lang/fixNodejs.js");
 
 ////////
 
-var CONFIG = "./config"
-
-const config = (function() {
-    var config = importjs(locate("config.json"));
-    for (var i in config.path) {
-        if (config.path.hasOwnProperty(i)) {
-            config.path[i] = locate(config.path[i]);
-        }
-    }
-    config.path.getAsset = function(seg) {
-        return Path.join(config.path.asset, seg);
-    }
-    config.path.getBin = function(seg) {
-        return Path.join(config.path.bin, seg);
-    }
-    config.path.getPage = function(seg) {
-        return Path.join(config.path.webpage, seg);
-    }
-    config.path.getStory = function(seg) {
-        return Path.join(config.path.story, seg);
-    }
-    config.port = require("yargs").alias("port", "p").argv.port || 8090;
-    return config;
-})();
+const config = importjs("module.Config").load();
+logd("using config: " + JSON.stringify(config));
+config.port = require("yargs").alias("port", "p").argv.port || config.port;
 
 ////////
 
@@ -38,8 +17,8 @@ const fs = importjs("fs");
 const Path = importjs("cc.typedef.io.Path");
 
 const Context = importjs("module.Context");
-const Router = importjs("module.Router");
 const FileProvider = importjs("module.FileProvider");
+const Router = importjs("module.Router");
 
 var router = new Router();
 var register = function(uriPath, handler) {
@@ -50,7 +29,7 @@ importjs("module.Sentinel").init(register, config.path["webpage"]);
 {
     var storyDict = {};
     var buffer = require('child_process').execSync(
-            "bash " + config.path.getBin("fnHash.sh") + " " + config.path.getStory());
+            "fnHash.sh " + locate(config.path["asset"], "story"));
     var lines = buffer.toString("utf8").split("\n");
     for (var i = 0; i < lines.length; ++i) {
         var line = lines[i];
@@ -90,9 +69,9 @@ importjs("module.Sentinel").init(register, config.path["webpage"]);
             }
             var filepath = storyDict[key];
             if (filepath) {
-                var sketch = fs.readFileSync(config.path.getPage("story"));
+                var sketch = fs.readFileSync(locate(config.path["webpage"], "story"));
                 var content = require('child_process').execSync(
-                    "python " + config.path.getBin("tx2html.py") + " -f \"" + filepath + "\"");
+                    "tx2html.py -f \"" + filepath + "\"");
                 FileProvider.sendData(context, "text/html",
                     sketch, "<div class=\"content\">", content, "</div></body></html>");
                 return true;
@@ -129,12 +108,11 @@ router.addRule("/*", function(context) {
     }
 });
 
-const port = require("yargs").alias("port", "p").argv.port || 8090;
 require("http").createServer(function(request, response) {
     request.setEncoding("binary");
     response.setHeader("server", "node.js/v6");
     var context = new Context(request, response);
     router.route(context);
     return;
-}).listen(port);
-logd("Listening at " + port);
+}).listen(config.port);
+logd("Listening at " + config.port);
