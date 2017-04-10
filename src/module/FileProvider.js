@@ -4,8 +4,8 @@ const fs = require("fs");
 const iconv = require("iconv-lite");
 const zlib = require("zlib");
 
-const File = importjs("cc.typedef.basic.File");
-const Path = importjs("cc.typedef.basic.Path");
+const File = importjs("cc.typedef.io.File");
+const Path = importjs("cc.typedef.io.Path");
 const Mime = importjs("cc.typedef.net.Mime");
 
 const Util = importjs("module.Util");
@@ -26,7 +26,7 @@ function sendFile(context, filepath, mimeType) {
         if (!file.stat.isFile()) {
             throw new Error("not a file");
         }
-    } catch(err) {
+    } catch (err) {
         console.log("file stat error: " + err.message);
         context.reply(404);
         return;

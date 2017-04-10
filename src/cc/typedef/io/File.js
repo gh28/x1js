@@ -2,7 +2,7 @@
 
 const fs = importjs("fs");
 
-const Path = importjs("cc.typedef.basic.Path");
+const Path = importjs("cc.typedef.io.Path");
 
 // a virtual file
 var File = function(path) {

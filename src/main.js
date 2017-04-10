@@ -35,7 +35,7 @@ const config = (function() {
 
 const fs = importjs("fs");
 
-const Path = importjs("cc.typedef.basic.Path");
+const Path = importjs("cc.typedef.io.Path");
 
 const Context = importjs("module.Context");
 const Router = importjs("module.Router");
