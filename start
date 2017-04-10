@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo $(cd `dirname $0`; pwd) '->' $(dirname $(readlink -f $0))
+echo $(cd `dirname $0`; pwd) '=>' $(dirname $(readlink -f $0))
 
 cd `dirname $0`
-nodejs src/website.js
+nodejs src/main.js
