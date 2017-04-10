@@ -42,17 +42,10 @@ const Router = importjs("module.Router");
 const FileProvider = importjs("module.FileProvider");
 
 var router = new Router();
-router.addRule("/resume", function(context) {
-    var fp = config.path.getPage("resume");
-    FileProvider.sendFile(context, fp, "text/html");
-    return true;
-});
-router.addRule("/view", function(context) {
-    var fp = config.path.webpage + Path.normalize("/" + decodeURIComponent(
-            context.uri.query["fn"] || "demo.html"));
-    FileProvider.sendFile(context, fp, "text/html");
-    return true;
-});
+var register = function(uriPath, handler) {
+    router.addRule(uriPath, handler);
+};
+importjs("module.Sentinel").init(register, config.path["webpage"]);
 
 {
     var storyDict = {};

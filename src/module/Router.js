@@ -11,8 +11,8 @@ function getKey(pattern) {
 // function route(context) { ... }
 Router.prototype.addRule = function(pattern, handler) {
     var key = getKey(pattern);
+    console.log("adding route [" + key + "]");
     this.routeMap.push([key, handler]);
-    console.log("route added for [" + key + "]");
 }
 
 Router.prototype.route = function(context) {
@@ -21,12 +21,12 @@ Router.prototype.route = function(context) {
     for (var i = 0; i < this.routeMap.length; ++i) {
         var pattern = this.routeMap[i][0];
         var handler = this.routeMap[i][1];
-        if (typeof pattern === "object" && pattern instanceof RegExp && path.match(pattern)) {
+        if (pattern instanceof RegExp && path.match(pattern)) {
             console.log("matched regex [" + pattern + "]");
             if (handler.call(handler, context)) {
                 return true;
             }
-        } else if (typeof pattern === "string" && wildcard(pattern, path)) {
+        } else if (isString(pattern) && wildcard(pattern, path)) {
             console.log("matched wildcard [" + pattern + "]");
             if (handler.call(handler, context)) {
                 return true;
