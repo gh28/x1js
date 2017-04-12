@@ -14,17 +14,7 @@ function Context(request, response) {
 }
 
 Context.prototype.getReqHeader = function(key) {
-    return this.req.headers[key];
-}
-
-Context.prototype.reply = function(statusCode, message) {
-    this.ack.writeHead(statusCode);
-    if (message) {
-        this.ack.write(message);
-    } else if (statusCode == 404) {
-        this.ack.write("\"You know a server is working by seeing this.\"");
-    }
-    this.ack.end();
+    return this.req.headers[key] || "";
 }
 
 module.exports = Context;

@@ -19,9 +19,9 @@ function Config() {
 Config.load = function(path) {
     if (!path || path.isEmpty()) {
         var defaultConfigFile = new File(DEFAULT_CONFIG_PATH);
-        if (!File.exists.call(defaultConfigFile)) {
+        if (!defaultConfigFile.exists()) {
             logd("creating config");
-            File.save.call(defaultConfigFile, JSON.stringify(DEFAULT_CONFIG));
+            defaultConfigFile.save(JSON.stringify(DEFAULT_CONFIG));
         }
         path = DEFAULT_CONFIG_PATH;
     }

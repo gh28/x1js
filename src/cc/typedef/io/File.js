@@ -6,39 +6,21 @@ const Path = importjs("cc.typedef.io.Path");
 
 // a virtual file
 var File = function(path) {
-    this.clear();
-    path = path && Path.normalize(path);
-    if (path) {
-        this.isFile = true;
-        this.path = path;
-    }
+    this.path = path && Path.normalize(path);
 }
 
-// avoid memory leak
-File.prototype.clear = function() {
-    this.isFile = false;
-    this.path = null;
-    this.stat = null;
-    this.buff = null;
+File.prototype.getContent = function() {
+    const caller = this;
+    return fs.readFileSync(caller.path);
 }
 
-File.prototype.loadStat = function() {
-    if (typeof(this.path) === "string" && this.path) {
-        this.stat = fs.statSync(this.path);
-        return true;
-    }
-    return false;
+File.prototype.getMeta = function() {
+    const caller = this;
+    return fs.statSync(caller.path);
 }
 
-File.prototype.load = function() {
-    this.loadStat();
-    if (this.stat.isFile()) {
-        this.buff = fs.readFileSync(this.path);
-    }
-}
-
-File.exists = function() {
-    var caller = this;
+File.prototype.exists = function() {
+    const caller = this;
     try {
         fs.statSync(caller.path);
         return true;
@@ -51,7 +33,7 @@ File.exists = function() {
     }
 };
 
-File.save = function(s) {
+File.prototype.save = function(s) {
     var caller = this;
     fs.writeFileSync(caller.path, s);
 };

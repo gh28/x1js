@@ -17,7 +17,7 @@ const fs = importjs("fs");
 const Path = importjs("cc.typedef.io.Path");
 
 const Context = importjs("module.Context");
-const FileProvider = importjs("module.FileProvider");
+const Responder = importjs("module.Responder");
 const Router = importjs("module.Router");
 
 var router = new Router();
@@ -64,7 +64,7 @@ importjs("plugin.Sentinel").init(register, config.path["asset"]);
                         menu += key + " " + value + "\n";
                     }
                 }
-                FileProvider.sendData(context, "text/plain", menu);
+                Responder.send(context, 200, "text/plain", menu);
                 return true;
             }
             var filepath = storyDict[key];
@@ -72,7 +72,7 @@ importjs("plugin.Sentinel").init(register, config.path["asset"]);
                 var sketch = fs.readFileSync(locate(config.path["webpage"], "story"));
                 var content = require('child_process').execSync(
                     "tx2html.py -f \"" + filepath + "\"");
-                FileProvider.sendData(context, "text/html",
+                Responder.send(context, 200, "text/html",
                     sketch, "<div class=\"content\">", content, "</div></body></html>");
                 return true;
             }
@@ -103,7 +103,7 @@ router.addRule("/*", function(context) {
     } else {
         // GET
         var fp = config.path.webroot + Path.normalize(decodeURIComponent(context.uri.path));
-        FileProvider.sendFile(context, fp);
+        Responder.sendFile(context, fp);
         return true;
     }
 });
