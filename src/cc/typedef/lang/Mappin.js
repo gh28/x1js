@@ -84,11 +84,14 @@ Mappin.toOneLine = function(spMajor, spMinor) {
 
 //// set manipulation/operation
 
-Mappin.merge = function(o) {
+Mappin.merge = function() {
     const caller = this;
-    for (var k in o) {
-        if (!caller.hasOwnProperty(k) && o.hasOwnProperty(k)) {
-            caller[k] = o[k];
+    for (var i in arguments) {
+        var o = arguments[i];
+        for (var k in o) {
+            if (!caller.hasOwnProperty(k) && o.hasOwnProperty(k) && !isNull(o[k])) {
+                caller[k] = o[k];
+            }
         }
     }
     return caller;

@@ -32,8 +32,6 @@ var getByPath = function(path) {
   return ext && ext2mime[ext];
 };
 
-if (module) {
-  module.exports = {
-    getMimeTypeByPath: getByPath
-  };
-}
+module.exports = {
+  getMimeTypeByPath: getByPath
+};

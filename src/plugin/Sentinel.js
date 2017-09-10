@@ -4,16 +4,16 @@ const Path = importjs("cc.typedef.io.Path");
 
 const Responder = importjs("module.Responder");
 
-function init(register, pathPrefix) {
+function init(register, locate, pathConfig) {
     register(/^\/sentinel$|^\/watchdog$/, function(context) {
-        Responder.sendFile(context, locate(pathPrefix, "user-agent.html"), "text/html");
+        Responder.sendFile(context, locate(pathConfig["webpage"], "user-agent.html"), "text/html");
         return true;
     });
     register("/view", function(context) {
         if (context.uri.query["q"]) {
             var q = decodeURIComponent(context.uri.query["q"]);
             var qPath = Path.normalize("/" + q).substring(1);
-            Responder.sendFile(context, locate(pathPrefix, qPath));
+            Responder.sendFile(context, locate(pathConfig["asset"], qPath));
         } else {
             Responder.sendFile(context, null);
         }
@@ -23,4 +23,4 @@ function init(register, pathPrefix) {
 
 module.exports = {
     "init": init
-}
+};
