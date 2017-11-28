@@ -28,11 +28,7 @@
 
     _G.assert = function(value, message) {
         if (!value) {
-            if (message) {
-                throw "E: assert fails: " + message;
-            } else {
-                throw "E: assert fails";
-            }
+            throw !!message ? message : "E: assert fails";
         }
     };
 
@@ -41,8 +37,11 @@
     };
 
     _G.setProto = function(o, proto) {
-        // again, prefix underscore suggests preset/internal variable
-        o._proto = o.__proto__ = proto;
+        o.__proto__ = proto;
+    };
+
+    _G.getProto = function(o) {
+        return o.__proto__;
     };
 })();
 
@@ -54,26 +53,40 @@
 
 (function() {
 
-    var O = {};
+    _G.createModule = function(proto, instInit) {
+        var C = {};
 
-    Object.defineProperties(O, {
-        static: {
-            value: {},
-            configurable: false,
-            enumerable: false,
-            writable: false
+        setProto(C, proto);
+
+        Object.defineProperties(C, {
+            static: {
+                value: {},
+                configurable: false,
+                enumerable: false,
+                writable: false
+            }
+        });
+
+        if (isObject(proto) && isObject(proto.static)) {
+            setProto(C.static, proto.static);
         }
-    });
 
-    O.static.create = function() {
-        var o = {};
-        setProto(o, O);
-        o.constructor = arguments.callee;
-        return o;
+        if (!!instInit) {
+            C.static.create = function() {
+                var o = instInit.apply(null, Array.prototype.slice.apply(arguments));
+                setProto(o, C);
+                o.constructor = arguments.callee;
+                return o;
+            };
+
+            // make "instanceof" work
+            C.static.create.prototype = C;
+        }
+
+        return C;
     };
 
-    // make "instanceof" work
-    O.static.create.prototype = O;
+    var O = createModule(null, null);
 
     O.allKeys = function() {
         return Object.keys.call(null, this);
@@ -110,7 +123,7 @@
                 }
             }
         }
-        setProto(o, caller.prototype);
+        setProto(o, caller.getProto());
         o.constructor = caller.constructor;
         return o;
     };
@@ -150,11 +163,14 @@
 
     O.merge = function() {
         var caller = this;
-        for (var i in arguments) {
-            var o = arguments[i];
-            for (var k in o) {
-                if (!caller.hasOwnProperty(k) && o.hasOwnProperty(k) && !isNull(o[k])) {
-                    caller[k] = o[k];
+        var args = Array.prototype.slice.apply(arguments);
+        for (var i in args) {
+            var o = args[i];
+            if (!!o) {
+                for (var k in o) {
+                    if (!caller.hasOwnProperty(k) && o.hasOwnProperty(k) && !isNull(o[k])) {
+                        caller[k] = o[k];
+                    }
                 }
             }
         }
@@ -189,20 +205,13 @@
 
 (function() {
 
-    var S = {};
-
-    Object.defineProperties(S, {
-        static: {
-            value: {},
-            configurable: false,
-            enumerable: false,
-            writable: false
-        }
-    });
-
-    setProto(S, String.prototype);
+    var S = createModule(null, null);
 
     S.codeAt = String.prototype.codePointAt;
+
+    S.toLower = String.prototype.toLowerCase;
+
+    S.toUpper = String.prototype.toUpperCase;
 
     S.equals = function(s) {
         return this == s;
@@ -224,25 +233,15 @@
         return this.substring(this.length - s.length) === s;
     };
 
-    S.static.compare = function(caller, s) {
-        if (!isString(caller) || !isString(s)) {
-            throw "E: invalid argument: expecting String";
-        }
-
+    S.compare = function(s) {
+        var caller = this;
         if (caller === s)  {
             return 0;
         }
-        if (caller == null) {
-            return -1;
-        }
-        if (s == null) {
+        if (isNull(s)) {
             return 1;
         }
         return caller < s ? -1 : 1;
-    };
-
-    S.compare = function(s) {
-        return S.static.compare.call(null, this, s);
     };
 
     String.prototype.merge(S);

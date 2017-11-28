@@ -1,3 +1,5 @@
+"use strict";
+
 // the top object _G
 (function() {
     if (typeof _G === "object" && _G !== null && _G === _G._G) {
@@ -14,7 +16,7 @@
         G.vm = "node"
     }
 
-    if (G) {
+    if (!!G) {
         Object.defineProperties(G, {
             // prefix underscore suggests it is a preset/internal variable
             _G: {
