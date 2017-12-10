@@ -1,25 +1,17 @@
 "use strict";
 
 // the object as module loader
-(function(name) {
-    if (typeof _G[name] !== "undefined") {
+(function(G, name) {
+    if (typeof G[name] !== "undefined") {
         throw "E: name conflict";
     }
 
-    var current = _G[name] = {
+    var P = G[name] = {
         _name: name,
         _version: 870
     };
 
     // -----------------------------------------------------
-
-    var isNull = function(o) {
-        return o === undefined || o === null;
-    };
-
-    var isObject = function(o) {
-        return typeof o === "object" && o !== null;
-    };
 
     var _config = {
         path: {
@@ -48,9 +40,9 @@
         }
     };
 
-    current.config = function(c) {
+    P.config = function(c) {
         _config.add(c);
-        return current;
+        return P;
     };
 
     var loadjs = function(name) {
@@ -59,29 +51,27 @@
         }
 
         var src = _config.path[name] || null;
+        if (!src) {
+            return;
+        }
 
-        if (_G.vm === "browser") {
-            if (!src) {
-                return;
-            }
-
+        if (G.vm === "browser") {
             // add script tag
             var a = document.getElementsByTagName("script");
-            a = Array.prototype.slice.call(a);
-            for (var i in a) {
-                if (a[i].getAttribute("src") === src) {
-                    return false;
+            if (!!a) {
+                a = Array.prototype.slice.call(a);
+                for (var i in a) {
+                    if (a[i].getAttribute("src") === src) {
+                        return;
+                    }
                 }
             }
             var newScript = document.createElement("script");
             newScript.setAttribute("type", "text/javascript");
             newScript.setAttribute("src", src);
             document.body.append(newScript);
-        } else if (_G.vm === "node") {
+        } else if (G.vm === "node") {
             // no will to voilate rules of server-side js, but be prepared for all contingencies
-            if (!src) {
-                return;
-            }
             (function(name, src) {
                 register(name, [], function() {
                     return require(src);
@@ -202,7 +192,7 @@
                 var depName = wrapper.depNames[i];
                 var dep = store.get(depName);
                 if (!dep || !dep.result) {
-                    // this module is blocked
+                    // being blocked
                     if (!blockTable[depName]) {
                         blockTable[depName] = [];
                     }
@@ -260,5 +250,5 @@
         };
     }
 
-    current.ask = ask;
-})("P");
+    P.ask = ask;
+})(_G, "P");
