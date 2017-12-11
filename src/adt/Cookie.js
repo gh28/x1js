@@ -8,9 +8,9 @@ var Cookie = createModule(Object.prototype, function() {
         _path: null,
         _timeout: 0,
         _isSecure: false,
-        _isHttpOnly = false
+        _isHttpOnly: false
     };
-};
+});
 
 Cookie.setKeyValue = function(key, value) {
     this._key = key;
@@ -51,7 +51,7 @@ Cookie.toString = function() {
     }
 
     var s = "";
-    s += this._key + "=" + this._value) + ";";
+    s += (this._key + "=" + this._value) + ";";
     if (this._domain) {
         s += "domain=" + this._domain + ";";
     }

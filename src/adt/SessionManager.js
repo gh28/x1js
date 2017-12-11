@@ -9,7 +9,7 @@ var Session = createModule(Object.prototype, function(id) {
         _ctime: +new Date(),
         _values: Store.static.create()
     };
-};
+});
 
 Session.setTimeout = function(timeout) {
     this._timeout = timeout;
@@ -47,8 +47,8 @@ Session.removeAll = function() {
 
 var SessionManager = createModule(Object.prototype, function(timeout) {
     return {
-        _sessionTimeout = timeout,
-        _sessions = Store.static.create();
+        _sessionTimeout: timeout,
+        _sessions: Store.static.create()
     };
 });
 

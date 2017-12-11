@@ -6,7 +6,7 @@ var Timer = createModule(Object.prototype, function() {
         _delay: 0,
         _token: null
     };
-};
+});
 
 Timer.setCallback = function(callback) {
     this._callback = callback;
