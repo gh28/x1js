@@ -14,39 +14,36 @@
     // -----------------------------------------------------
 
     var _config = {
-        path: {
-        },
-        add: function(c) {
-            if (!isObject(c) || !isObject(c.path)) {
-                return;
-            }
-            for (var k in c.path) {
-                var v = c.path[k];
-                if (typeof v !== "string") {
-                    // ignore invalid
-                    continue;
-                }
-                var existedV = _config.path[k];
-                if (!isNull(existedV)) {
-                    if (existedV === v) {
-                        // ignore duplicated
-                        continue;
-                    } else {
-                        throw "E: name conflict";
-                    }
-                }
-                _config.path[k] = v;
-            }
-        }
+        path: {}
     };
 
     P.config = function(c) {
-        _config.add(c);
+        if (typeof c !== "object" || typeof c.path !== "object") {
+            throw "E: invalid argument: object expected";
+        }
+
+        for (var k in c.path) {
+            var v = c.path[k];
+            if (typeof v !== "string") {
+                throw "E: invalid argument: string expected";
+            }
+            var existedV = _config.path[k];
+            if (existedV !== undefined && existedV !== null) {
+                if (existedV === v) {
+                    // ignore duplicated
+                    continue;
+                } else {
+                    throw "E: name conflict";
+                }
+            }
+            _config.path[k] = v;
+        }
+
         return P;
     };
 
     var loadjs = function(name) {
-        if (typeof name === "string" || name.length === 0) {
+        if (typeof name !== "string" || name.length === 0) {
             throw "E: invalid argument [" + name + "]";
         }
 
@@ -69,7 +66,7 @@
             var newScript = document.createElement("script");
             newScript.setAttribute("type", "text/javascript");
             newScript.setAttribute("src", src);
-            document.body.append(newScript);
+            document.head.append(newScript);
         } else if (G.vm === "node") {
             // no will to voilate rules of server-side js, but be prepared for all contingencies
             (function(name, src) {
