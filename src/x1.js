@@ -1,59 +1,57 @@
-"use strict";
+(function(_G) {
 
-(function(G) {
-
-    G.isNull = function(o) {
+    _G.isNull = function(o) {
         return o === undefined || o === null;
     };
 
-    G.isNumber = function(o) {
+    _G.isNumber = function(o) {
         return typeof(o) === "number";
     };
 
-    G.isFunction = function(o) {
+    _G.isFunction = function(o) {
         return typeof(o) === "function";
     };
 
-    G.isString = function(o) {
+    _G.isString = function(o) {
         return typeof(o) === "string";
     };
 
-    G.isVector = function(o) {
+    _G.isVector = function(o) {
         return Object.prototype.toString.call(o) === "[object Array]";
     };
 
-    G.isObject = function(o) {
+    _G.isObject = function(o) {
         return Object.prototype.toString.call(o) === "[object Object]";
     };
 
-    G.assert = function(value, message) {
+    _G.assert = function(value, message) {
         if (!value) {
             throw !!message ? message : "E: assert fails";
         }
     };
 
-    G.logd = function(message) {
+    _G.logd = function(message) {
         return console.log(message);
     };
 
-    G.setProto = function(o, proto) {
+    _G.setProto = function(o, proto) {
         o.__proto__ = proto;
     };
 
-    G.getProto = function(o) {
+    _G.getProto = function(o) {
         return o.__proto__;
     };
 
-    G.forEach = function(o, callback) {
+    _G.forEach = function(o, callback) {
         for (var k in o) {
             callback(k, o[k]);
         }
     };
 })(_G);
 
-(function(G) {
+(function(_G) {
 
-    G._namespace = {};
+    _G._namespace = {};
 
     function isCanonical(id) {
         assert(isString(id));
@@ -63,7 +61,7 @@
     }
 
     function getNamespace(a, creates) {
-        var ns = G._namespace;
+        var ns = _G._namespace;
         for (var i in a) {
             var ai = a[i];
             if (typeof ns[i] === "undefined") {
@@ -80,7 +78,7 @@
         return ns;
     }
 
-    G.importModule = function(id) {
+    _G.importModule = function(id) {
         assert(isCanonical(id));
         var a = id.split(".");
         var name = a.pop();
@@ -91,7 +89,7 @@
         throw "E: name not exist";
     };
 
-    G.exportModule = function(id, C) {
+    _G.exportModule = function(id, C) {
         assert(isCanonical(id));
         var a = id.split(".");
         var name = a.pop();
@@ -103,7 +101,7 @@
         }
     };
 
-    G.createModule = function(proto, fnInitInst) {
+    _G.createModule = function(proto, fnInitInst) {
         var C = {};
 
         setProto(C, proto);

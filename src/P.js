@@ -1,12 +1,10 @@
-"use strict";
-
 // the object as module loader
-(function(G, name) {
-    if (typeof G[name] !== "undefined") {
+(function(_G, name) {
+    if (typeof _G[name] !== "undefined") {
         throw "E: name conflict";
     }
 
-    var P = G[name] = {
+    var P = _G[name] = {
         _name: name,
         _version: 870
     };
@@ -52,7 +50,7 @@
             return;
         }
 
-        if (G.vm === "browser") {
+        if (_G._vm === "browser") {
             // add script tag
             var a = document.getElementsByTagName("script");
             if (!!a) {
@@ -67,7 +65,7 @@
             newScript.setAttribute("type", "text/javascript");
             newScript.setAttribute("src", src);
             document.head.append(newScript);
-        } else if (G.vm === "node") {
+        } else if (_G._vm === "node") {
             // no will to voilate rules of server-side js, but be prepared for all contingencies
             (function(name, src) {
                 register(name, [], function() {
