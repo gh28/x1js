@@ -43,11 +43,17 @@
     G.getProto = function(o) {
         return o.__proto__;
     };
+
+    G.forEach = function(o, callback) {
+        for (var k in o) {
+            callback(k, o[k]);
+        }
+    };
 })(_G);
 
 (function(G) {
 
-    G._namespaces = {};
+    G._namespace = {};
 
     function isCanonical(id) {
         assert(isString(id));
@@ -57,7 +63,7 @@
     }
 
     function getNamespace(a, creates) {
-        var ns = G._namespaces;
+        var ns = G._namespace;
         for (var i in a) {
             var ai = a[i];
             if (typeof ns[i] === "undefined") {
@@ -144,10 +150,6 @@
         return Object.keys.call(null, this);
     };
 
-    O.hasOwn = function(key) {
-        return Object.prototype.hasOwnProperty.call(this, key);
-    };
-
     O.ownKeys = function() {
         var caller = this;
         var ownKeys = [];
@@ -159,6 +161,10 @@
         }
         return ownKeys;
     }
+
+    O.hasOwn = function(key) {
+        return Object.prototype.hasOwnProperty.call(this, key);
+    };
 
     O.clear = function() {
         var caller = this;
