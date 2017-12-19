@@ -16,7 +16,7 @@
         return typeof(o) === "string";
     };
 
-    _G.isVector = function(o) {
+    _G.isList = function(o) {
         return Object.prototype.toString.call(o) === "[object Array]";
     };
 
@@ -35,103 +35,23 @@
     };
 
     _G.setProto = function(o, proto) {
-        o.__proto__ = proto;
+        // o.__proto__ = proto;
+        return Object.setPrototypeOf(o, proto);
+    };
+
+    _G.createObject = function(proto) {
+        return Object.create(proto);
     };
 
     _G.getProto = function(o) {
-        return o.__proto__;
+        // return o.__proto__;
+        return Object.getPrototypeOf(o);
     };
 
     _G.forEach = function(o, callback) {
         for (var k in o) {
             callback(k, o[k]);
         }
-    };
-})(_G);
-
-(function(_G) {
-
-    _G._namespace = {};
-
-    function isCanonical(id) {
-        assert(isString(id));
-        var identifierRegex = "[A-Za-z$_][A-Za-z0-9$_]*";
-        var regex = "^(" + identifierRegex + "\.)*" + identifierRegex + "$";
-        return !!id.match(regex);
-    }
-
-    function getNamespace(a, creates) {
-        var ns = _G._namespace;
-        for (var i in a) {
-            var ai = a[i];
-            if (typeof ns[i] === "undefined") {
-                if (!creates) {
-                    throw "E: name not exist";
-                } else {
-                    ns[ai] = {};
-                }
-            } else if (!isObject(ns[ai])) {
-                throw "E: name conflict";
-            }
-            ns = ns[ai];
-        }
-        return ns;
-    }
-
-    _G.importModule = function(id) {
-        assert(isCanonical(id));
-        var a = id.split(".");
-        var name = a.pop();
-        var ns = getNamespace(a);
-        if (isObject(ns) && isObject(ns[name])) {
-            return ns[name];
-        }
-        throw "E: name not exist";
-    };
-
-    _G.exportModule = function(id, C) {
-        assert(isCanonical(id));
-        var a = id.split(".");
-        var name = a.pop();
-        var ns = getNamespace(a, true);
-        if (typeof ns[name] === "undefined") {
-            ns[name] = C;
-        } else {
-            throw "E: export: name conflict";
-        }
-    };
-
-    _G.createModule = function(proto, fnInitInst) {
-        var C = {};
-
-        setProto(C, proto);
-
-        Object.defineProperties(C, {
-            static: {
-                value: {},
-                configurable: false,
-                enumerable: false,
-                writable: false
-            }
-        });
-
-        if (isObject(proto) && isObject(proto.static)) {
-            setProto(C.static, proto.static);
-        }
-
-        if (!!fnInitInst) {
-            C.static.create = function() {
-                var o = fnInitInst.apply(null, Array.prototype.slice.apply(arguments));
-                setProto(o, C);
-                o.constructor = arguments.callee;
-                return o;
-            };
-
-            // make "instanceof" work
-            C.static.create.prototype = C;
-        }
-
-        return C;
     };
 })(_G);
 
@@ -142,7 +62,16 @@
  */
 (function() {
 
-    var O = createModule(null, null);
+    var O = {};
+
+    Object.defineProperties(O, {
+        static: {
+            value: {},
+            configurable: false,
+            enumerable: false,
+            writable: false
+        }
+    });
 
     O.allKeys = function() {
         return Object.keys.call(null, this);
@@ -173,7 +102,7 @@
 
     O.copy = function(goesDeep) {
         var caller = this;
-        var o = {};
+        var o = createObject(caller.getProto());
         for (var k in caller) {
             if (caller.hasOwnProperty(k)) {
                 if (goesDeep && isObject(caller[k])) {
@@ -183,7 +112,6 @@
                 }
             }
         }
-        setProto(o, caller.getProto());
         o.constructor = caller.constructor;
         return o;
     };
@@ -265,7 +193,16 @@
 
 (function() {
 
-    var S = createModule(null, null);
+    var S = {};
+
+    Object.defineProperties(S, {
+        static: {
+            value: {},
+            configurable: false,
+            enumerable: false,
+            writable: false
+        }
+    });
 
     S.codeAt = String.prototype.codePointAt;
 
