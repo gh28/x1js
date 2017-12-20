@@ -1,59 +1,45 @@
-// the object as module loader
-(function(_G, name) {
-    if (typeof _G[name] !== "undefined") {
+// async component loader
+(function(_G) {
+    if (typeof _G["P"] !== "undefined") {
         throw "E: name conflict";
     }
 
-    var P = _G[name] = {
-        _name: name,
+    var P = _G["P"] = {
+        _name: "P",
         _version: 870
     };
 
     // -----------------------------------------------------
 
     var _config = {
-        path: {}
+        // "aaa": {
+        //     uri: "path/to/script"
+        //     depends: ["bbb", "ccc"],
+        //     onLoaded: function(event) {
+        //     }
+        // }
     };
 
-    P.config = function(c) {
-        if (typeof c !== "object" || typeof c.path !== "object") {
-            throw "E: invalid argument: object expected";
-        }
-
-        for (var k in c.path) {
-            var v = c.path[k];
-            if (typeof v !== "string") {
-                throw "E: invalid argument: string expected";
-            }
-            var existedV = _config.path[k];
-            if (existedV !== undefined && existedV !== null) {
-                if (existedV === v) {
-                    // ignore duplicated
-                    continue;
-                } else {
-                    throw "E: name conflict";
-                }
-            }
-            _config.path[k] = v;
-        }
-
+    P.config = function(config) {
+        assert(isObject(config), "E: invalid argument: object expected");
+        _config.merge(config);
         return P;
     };
 
     var loadjs = function(name) {
-        if (typeof name !== "string" || name.length === 0) {
-            throw "E: invalid argument [" + name + "]";
-        }
+        assert(isString(name) && name.length > 0, "E: invalid argument [" + name + "]");
 
-        var src = _config.path[name] || null;
-        if (!src) {
+        var config = _config[name];
+        if (!config) {
             return;
         }
+        assert(isString(config["uri"]) && config["uri"].length > 0, "E: invalid config: [" + name + "]");
 
         if (_G._vm === "browser") {
             // add script tag
+            var src = config["uri"];
             var a = document.getElementsByTagName("script");
-            if (!!a) {
+            if (a) {
                 a = Array.prototype.slice.call(a);
                 for (var i in a) {
                     if (a[i].getAttribute("src") === src) {
@@ -64,6 +50,13 @@
             var newScript = document.createElement("script");
             newScript.setAttribute("type", "text/javascript");
             newScript.setAttribute("src", src);
+            if (config["onLoaded"]) {
+                function a(event) {
+                    event.target.removeEventListener(event.target, a);
+                    config["onLoaded"](event);
+                }
+                newScript.addEventListener("load", a);
+            }
             document.head.append(newScript);
         } else if (_G._vm === "node") {
             // no will to voilate rules of server-side js, but be prepared for all contingencies
@@ -83,7 +76,7 @@
     var genName = (function() {
         var i = 0;
         return function() {
-            "module-" + i++;
+            "noname-" + i++;
         }
     })();
 
@@ -216,10 +209,10 @@
                 if (!name) {
                     throw "E: invalid argument: nothing received";
                 }
-                if (typeof name === "string") {
+                if (isString(name)) {
                     // cannot be empty string
                     fn = null;
-                } else if (typeof name === "function") {
+                } else if (isFunction(name)) {
                     fn = name;
                     name = null;
                 } else {
@@ -246,4 +239,4 @@
     }
 
     P.ask = ask;
-})(_G, "P");
+})(_G);
