@@ -1,17 +1,20 @@
-// async component loader
-(function(_G) {
-    if (typeof _G["P"] !== "undefined") {
+/**
+ * P the dependency resolver and post-loader
+ */
+
+(function(_G, name) {
+    if (typeof _G[name] !== "undefined") {
         throw "E: name conflict";
     }
 
-    var P = _G["P"] = {
-        _name: "P",
-        _version: 870
+    var P = _G[name] = {
+        _name: name,
+        _version: 871
     };
 
     // -----------------------------------------------------
 
-    var _config = {
+    var _configs = {
         // "aaa": {
         //     uri: "path/to/script"
         //     depends: ["bbb", "ccc"],
@@ -20,21 +23,16 @@
         // }
     };
 
-    P.config = function(config) {
+    P.addConfig = function(name, config) {
+        assert(isString(name), "E: invalid argument: string expected");
         assert(isObject(config), "E: invalid argument: object expected");
-        _config.merge(config);
+        _configs[name] = config;
         return P;
     };
 
-    var loadjs = function(name) {
-        assert(isString(name) && name.length > 0, "E: invalid argument [" + name + "]");
-
-        var config = _config[name];
-        if (!config) {
-            return;
-        }
-        assert(isString(config["uri"]) && config["uri"].length > 0, "E: invalid config: [" + name + "]");
-
+    var loadJsByConfig = function(config) {
+        assert(isString(config.uri));
+        assert(isFunction(config.onLoaded));
         if (_G._vm === "browser") {
             // add script tag
             var src = config["uri"];
@@ -50,16 +48,15 @@
             var newScript = document.createElement("script");
             newScript.setAttribute("type", "text/javascript");
             newScript.setAttribute("src", src);
-            if (config["onLoaded"]) {
-                function a(event) {
+            if (isFunction(config["onLoaded"])) {
+                newScript.addEventListener("load", function(event) {
                     event.target.removeEventListener(event.target, a);
                     config["onLoaded"](event);
-                }
-                newScript.addEventListener("load", a);
+                });
             }
             document.head.append(newScript);
         } else if (_G._vm === "node") {
-            // no will to voilate rules of server-side js, but be prepared for all contingencies
+            // no will to violate rules of server-side js, but be prepared for all contingencies
             (function(name, src) {
                 register(name, [], function() {
                     return require(src);
@@ -76,16 +73,16 @@
     var genName = (function() {
         var i = 0;
         return function() {
-            "noname-" + i++;
+            return "noname-" + i++;
         }
     })();
 
     var createWrapper = function(name, depNames, fn) {
         return {
             name: name,
-            depNames: depNames,
+            depNames: depNames || [],
             fn: fn,
-            distance: 0,
+            p: 0,
             result: null
         };
     };
@@ -121,10 +118,11 @@
 
     var schedule = (function() {
 
-        var readyQueue = [];
+        var _readys = [
+            // wrapper, wrapper, ...
+        ];
 
-        // also to notify
-        var blockTable = {
+        var blockers = {
             // depName: [name, name, ...]
         };
 
@@ -140,34 +138,35 @@
             return depResults;
         }
 
-        function addToReadyQueue(wrapper) {
-            readyQueue.push(wrapper);
-            if (readyQueue.length > 0 && timerToken == -1) {
+        function addToReadys(wrapper) {
+            _readys.push(wrapper);
+            if (_readys.length > 0 && timerToken == -1) {
                 // unnecessary for a distinct message queue
-                timerToken = setInterval(execute, 20);
+                timerToken = setInterval(execute, 15);
             }
         }
 
         function execute() {
+            logd("I: [" + Object.keys(blockers).length + "] blockers remaining")
             if (isExecuting) {
                 return;
             }
 
             isExecuting = true;
-            var wrapper = readyQueue.shift();
+            var wrapper = _readys.shift();
             wrapper.result = wrapper.fn.apply(wrapper, getDepResults(wrapper)) || {};
 
-            var blockedNames = blockTable[wrapper.name];
+            var blockedNames = blockers[wrapper.name] || [];
             for (var i in blockedNames) {
                 var blockedWrapper = store.get(blockedNames[i]);
-                blockedWrapper.distance--;
-                if (blockedWrapper.distance === 0) {
-                    addToReadyQueue(blockedWrapper);
+                blockedWrapper.p--;
+                if (blockedWrapper.p === 0) {
+                    addToReadys(blockedWrapper);
                 }
             }
-            delete blockTable[wrapper.name];
+            delete blockers[wrapper.name];
 
-            if (readyQueue.length == 0) {
+            if (_readys.length == 0) {
                 clearInterval(timerToken);
                 timerToken = -1;
             }
@@ -181,22 +180,28 @@
                 var dep = store.get(depName);
                 if (!dep || !dep.result) {
                     // being blocked
-                    if (!blockTable[depName]) {
-                        blockTable[depName] = [];
+                    if (!blockers[depName]) {
+                        blockers[depName] = [];
                     }
-                    blockTable[depName].push(wrapper.name);
-                    wrapper.distance++;
+                    blockers[depName].push(wrapper.name);
+                    wrapper.p++;
 
-                    loadjs(depName);
+                    var config = _configs[depName];
+                    if (config) {
+                        loadJsByConfig(config);
+                    }
                 }
             }
-            if (wrapper.distance === 0) {
-                addToReadyQueue(wrapper);
+            if (wrapper.p === 0) {
+                addToReadys(wrapper);
             }
         };
     })();
 
     var register = function(name, depNames, fn) {
+        if (store.contains(name)) {
+            throw "E: name conflict";
+        }
         store.put(name, createWrapper(name, depNames, fn));
         schedule(name);
     }
@@ -205,29 +210,27 @@
         var depNames = Array.prototype.slice.call(arguments);
 
         function answer(name, fn) {
-            if (!fn) {
-                if (!name) {
-                    throw "E: invalid argument: nothing received";
-                }
-                if (isString(name)) {
-                    // cannot be empty string
+            if (arguments.length == 0) {
+                throw "E: invalid argument: nothing received";
+            } else if (arguments.length == 1) {
+                var arg0 = arguments[0];
+                if (isString(arg0)) {
                     fn = null;
-                } else if (isFunction(name)) {
-                    fn = name;
+                } else if (isFunction(arg0)) {
+                    fn = arg0;
                     name = null;
                 } else {
                     throw "E: invalid argument [" + name + "]";
                 }
+            } else {
+                // take name & fn
             }
+
             if (!name) {
                 name = genName();
             }
             if (!fn) {
                 fn = dummy;
-            }
-
-            if (store.contains(name)) {
-                throw "E: name conflict";
             }
 
             register(name, depNames, fn);
@@ -239,4 +242,4 @@
     }
 
     P.ask = ask;
-})(_G);
+})(_G, "P");

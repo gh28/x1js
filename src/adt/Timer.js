@@ -1,11 +1,11 @@
 "use strict";
 
-var Timer = createModule(Object.prototype, function() {
-    return {
+var Timer = createClass(Object.prototype, function() {
+    this.merge({
         _callback: null,
         _delay: 0,
         _token: null
-    };
+    });
 });
 
 Timer.setCallback = function(callback) {
@@ -18,27 +18,36 @@ Timer.setDelay = function(delay) {
     return this;
 };
 
-Timer.start = function(times) {
-    var caller = this;
-    assert(!!caller._token, "E: Timer running");
-    assert(isNull(times) || isNumber(times));
-    times = times || 0;
-    if (times <= 0) {
-        caller._token = setInterval(caller._callback, caller._delay);
-    } else {
-        caller._token = setInterval(function() {
-            caller._callback();
-            if (--times === 0) {
-                caller.end();
+Timer.start = function(numTimes) {
+    if (arguments.length === 0) {
+        numTimes = 0;
+    }
+    assert(isNumber(numTimes) && numTimes >= 0);
+
+    if (this.isRunning()) {
+        throw "E: timer is running";
+    }
+
+    if (numTimes == 0) {
+        this._token = setInterval(this._callback, this._delay);
+        return;
+    } else if (numTimes > 0) {
+        this._token = setInterval(function() {
+            this._callback();
+            if (--numTimes == 0) {
+                this.end();
             }
-        }, caller._delay);
+        }, this._delay);
     }
 };
 
 Timer.end = function() {
-    var caller = this;
-    if (!!caller._token) {
-        clearInterval(caller._token);
-        caller._token = null;
+    if (this.isRunning()) {
+        clearInterval(this._token);
+        this._token = null;
     }
+};
+
+Timer.isRunning = function() {
+    return isVoid(this._token);
 };

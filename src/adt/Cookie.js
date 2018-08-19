@@ -1,7 +1,7 @@
 "use strict";
 
-var Cookie = createModule(Object.prototype, function() {
-    return {
+var Cookie = createClass(Object.prototype, function() {
+    this.merge({
         _key: null,
         _value: null,
         _domain: null,
@@ -9,7 +9,7 @@ var Cookie = createModule(Object.prototype, function() {
         _timeout: 0,
         _isSecure: false,
         _isHttpOnly: false
-    };
+    });
 });
 
 Cookie.setKeyValue = function(key, value) {

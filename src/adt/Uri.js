@@ -5,13 +5,13 @@
 // to parse uri(mostly url) into an object and reverse
 // see http://docs.oracle.com/javase/1.5.0/docs/api/java/net/URI.html
 
-var Uri = createModule(Object.prototype, function() {
-    return {
+var Uri = createClass(Object.prototype, function() {
+    this.merge({
         source: null,
         scheme: null,
         schemeSpecificPart: null,
         fragment: null
-    };
+    });
 });
 
 Uri.isAbsolute = function() {
@@ -27,8 +27,7 @@ Uri.isRelative = function() {
 // news:comp.lang.java
 // urn:isbn:096139210x
 Uri.isOpaque = function() {
-    var caller = this;
-    return caller.isAbsolute() && !caller.schemeSpecificPart.startsWith("/");
+    return this.isAbsolute() && !this.schemeSpecificPart.startsWith("/");
 };
 
 Uri.isHierarchical = function() {

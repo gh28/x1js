@@ -1,7 +1,11 @@
+/**
+ * _G the top object
+ */
+
 "use strict";
 
-// the top object _G
 (function() {
+
     if (typeof _G === "object" && _G !== null && _G === _G._G) {
         // already there
         return;

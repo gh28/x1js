@@ -1,9 +1,9 @@
 "use strict";
 
-var Store = createModule(Object.prototype, function() {
-    return {
+var Store = createClass(Object.prototype, function() {
+    this.merge({
         _store: {}
-    };
+    });
 });
 
 Store.get = function(key) {
@@ -27,5 +27,9 @@ Store.remove = function(key) {
 };
 
 Store.clear = function() {
-    this._store = {};
+    for (var k in this._store) {
+        if (this._store.hasOwn(k)) {
+            delete this._store[k];
+        }
+    }
 };

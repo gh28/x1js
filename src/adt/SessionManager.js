@@ -2,13 +2,13 @@
 
 // ---------------------------------------------------------
 
-var Session = createModule(Object.prototype, function(id) {
-    return {
+var Session = createClass(Object.prototype, function(id) {
+    this.merge({
         _id: id || null,
         _timeout: 0,
         _ctime: +new Date(),
         _values: Store.static.create()
-    };
+    });
 });
 
 Session.setTimeout = function(timeout) {
@@ -45,7 +45,7 @@ Session.removeAll = function() {
 
 // ---------------------------------------------------------
 
-var SessionManager = createModule(Object.prototype, function(timeout) {
+var SessionManager = createClass(Object.prototype, function(timeout) {
     return {
         _sessionTimeout: timeout,
         _sessions: Store.static.create()
@@ -53,21 +53,20 @@ var SessionManager = createModule(Object.prototype, function(timeout) {
 });
 
 SessionManager.updateSession = function(sessionId) {
-    var caller = this;
     var session = null;
     if (!sessionId) {
         // create operation
         sessionId = +new Date() + "-" + Math.random() * 1000;
         session = Session.static.create(sessionId);
-        caller.putSession(session);
+        this.putSession(session);
     } else {
         // update operation
-        session = caller.getSession(sessionId);
+        session = this.getSession(sessionId);
         if (!session) {
             throw "E: fail to get session [" + sessionId + "]";
         }
     }
-    session.setTimeout(caller._sessionTimeout);
+    session.setTimeout(this._sessionTimeout);
     return session;
 };
 

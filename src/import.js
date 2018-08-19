@@ -1,35 +1,38 @@
 (function(_G) {
 
-    _G.createModule = function(proto, fnInitInst) {
-        var C = createObject(proto);
+    function dummy() {
+    }
 
-        Object.defineProperties(C, {
-            static: {
-                value: isObject(proto) && isObject(proto.static)
-                    ? createObject(proto.static)
-                    : {},
-                configurable: false,
-                enumerable: false,
-                writable: false
-            }
-        });
-
-        if (fnInitInst) {
-            C.static.create = function() {
-                var o = createObject(C).merge(
-                    fnInitInst.apply(null, Array.prototype.slice.apply(arguments)));
-                o.constructor = arguments.callee;
-                return o;
-            };
-
-            // make "instanceof" work
-            C.static.create.prototype = C;
+    _G.createClass = function(proto, instanceInit) {
+        if (isVoid(instanceInit)) {
+            instanceInit = dummy;
         }
+        assert(isFunction(instanceInit));
+
+        var C = Object.create(proto);
+
+        C.setMember("static", isObject(proto) && isObject(proto.static)
+                ? Object.create(proto.static)
+                : {});
+
+        C.static.create = function() {
+            var o = Object.create(C);
+            instanceInit.apply(o, Array.prototype.slice.apply(arguments));
+            o.constructor = arguments.callee;
+            return o;
+        };
+
+        // make "instanceof" work
+        C.static.create.prototype = C;
 
         return C;
     };
 
-    function isDottyId(id) {
+    function isClass(C) {
+        return isObject(C) && isObject(C.static) && isFunction(C.static.create);
+    }
+
+    function isDottedIdentifier(id) {
         assert(isString(id));
         var identifierRegex = "[A-Za-z$_][A-Za-z0-9$_]*";
         var regex = "^(" + identifierRegex + "\.)*" + identifierRegex + "$";
@@ -54,31 +57,31 @@
         return ns;
     }
 
-    function getOrCreateNamespace(a) {
-        return getNamespace(a, true);
-    }
-
-    _G.importModule = function(id) {
-        assert(isDottyId(id));
+    _G.importClass = function(id) {
+        assert(isDottedIdentifier(id));
         var a = id.split(".");
         var name = a.pop();
         var ns = getNamespace(a);
-        if (isObject(ns) && isObject(ns[name])) {
-            return ns[name];
+        if (!isObject(ns)) {
+            throw "E: no such namespace";
         }
-        throw "E: name not exist";
+        if (!isClass(ns[name])) {
+            // would sleep and start loading (via filesystem or network) and awake when loading done
+            // but there is no such mechanism in js
+            throw "E: no such class";
+        }
+        return ns[name];
     };
 
-    _G.exportModule = function(id, C) {
-        assert(isDottyId(id));
+    _G.exportClass = function(id, C) {
+        assert(isDottedIdentifier(id));
+        assert(isClass(C));
         var a = id.split(".");
         var name = a.pop();
-        var ns = getOrCreateNamespace(a);
-        if (typeof ns[name] === "undefined") {
-            ns[name] = C;
-        } else {
+        var ns = getNamespace(a, true);
+        if (typeof ns[name] !== "undefined") {
             throw "E: export: name conflict";
         }
+        ns[name] = C;
     };
-
 })(_G);
