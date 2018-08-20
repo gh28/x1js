@@ -2,12 +2,12 @@
 
 // ---------------------------------------------------------
 
-var Session = createClass(Object.prototype, function(id) {
+var Session = createClass(Object.prototype, function(sessionId) {
     this.merge({
-        _id: id || null,
+        _id: sessionId || null,
         _timeout: 0,
         _ctime: +new Date(),
-        _values: Store.static.create()
+        _valueStore: Store.static.create()
     });
 });
 
@@ -28,19 +28,19 @@ Session.touch = function() {
 };
 
 Session.get = function(key) {
-    return this._values.get(key);
+    return this._valueStore.get(key);
 };
 
 Session.put = function(key, value) {
-    return this._values.put(key, value);
+    return this._valueStore.put(key, value);
 };
 
 Session.remove = function(key) {
-    return this._values.remove(key);
+    return this._valueStore.remove(key);
 };
 
 Session.removeAll = function() {
-    this._values.clear();
+    this._valueStore.clear();
 };
 
 // ---------------------------------------------------------
@@ -48,7 +48,7 @@ Session.removeAll = function() {
 var SessionManager = createClass(Object.prototype, function(timeout) {
     return {
         _sessionTimeout: timeout,
-        _sessions: Store.static.create()
+        _sessionStore: Store.static.create()
     };
 });
 
@@ -71,13 +71,13 @@ SessionManager.updateSession = function(sessionId) {
 };
 
 SessionManager.getSession = function(sessionId) {
-    return this._sessions.get(sessionId);
+    return this._sessionStore.get(sessionId);
 };
 
 SessionManager.putSession = function(session) {
-    this._sessions.put(session.getId(), session);
+    this._sessionStore.put(session.getId(), session);
 };
 
 SessionManager.removeSession = function(sessionId) {
-    delete this._sessions.remove(sessionId);
+    delete this._sessionStore.remove(sessionId);
 };

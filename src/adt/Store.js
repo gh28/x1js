@@ -27,9 +27,5 @@ Store.remove = function(key) {
 };
 
 Store.clear = function() {
-    for (var k in this._store) {
-        if (this._store.hasOwn(k)) {
-            delete this._store[k];
-        }
-    }
+    Cmap.clear.call(this._store);
 };
