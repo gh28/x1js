@@ -78,76 +78,19 @@
         return Object.prototype.hasOwnProperty.call(this, key);
     };
 
-    O.copy = function() {
-        var o = this;
-        var o2 = Object.create(Object.getPrototypeOf(o));
-        for (var k in o) {
-            if (O.hasOwn.call(o, k)) {
-                o2[k] = o[k];
-            }
-        }
-        return o2;
-    };
-
-    O.deepCopy = function() {
-        var o = this;
-        var o2 = Object.create(Object.getPrototypeOf(o));
-        for (var k in o) {
-            if (O.hasOwn.call(o, k)) {
-                if (isObject(o[k])) {
-                    o2[k] = arguments.callee.call(o[k]);
-                } else {
-                    o2[k] = o[k];
+    O.merge = function(q) {
+        var p = this;
+        if (!!q) {
+            for (var k in q) {
+                if (!O.hasOwn.call(p, k) && O.hasOwn.call(q, k)) {
+                    p[k] = q[k];
                 }
             }
         }
-        return o2;
-    };
-
-    O.merge = function(o2) {
-        var o = this;
-        if (!!o2) {
-            for (var k in o2) {
-                if (!O.hasOwn.call(o, k) && O.hasOwn.call(o2, k)) {
-                    o[k] = o2[k];
-                }
-            }
-        }
-        return o;
+        return p;
     };
 
     // --------
-
-    O.static = {};
-
-    O.static.fromOneLine = function(oneLine, majorSeparator, minorSeparator) {
-        assert(isString(oneLine), "E: invalid argument [" + oneLine + "]");
-        majorSeparator = majorSeparator || "&";
-        minorSeparator = minorSeparator || "=";
-        var o = {};
-        var a = oneLine.split(majorSeparator);
-        for (var i = 0; i < a.length; ++i) {
-            var p = a[i].split(minorSeparator);
-            if (p[0]) {
-                o[p[0]] = (p[1] || "1");
-            }
-        }
-        return o;
-    };
-
-    // FIXME encode values
-    O.toOneLine = function(majorSeparator, minorSeparator) {
-        majorSeparator = majorSeparator || "&";
-        minorSeparator = minorSeparator || "=";
-        var o = this;
-        var a = [];
-        for (var k in o) {
-            if (O.hasOwn.call(o, k) && !isVoid(o[k])) {
-                a.push(k + minorSeparator + o[k]);
-            }
-        }
-        return a.join(majorSeparator);
-    };
 
     for (var i in O) {
         O.setMember.call(Object.prototype, i, O[i]);

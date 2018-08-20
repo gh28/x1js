@@ -123,7 +123,7 @@ function parseSchemeSpecificPart(uri) {
         uri.pass = captured[3];
     }
 
-    uri.query = Mappin.fromOneLine.call({}, uri.query || "", "&", "=");
+    uri.query = Cmap.static.fromOneLine.call({}, uri.query || "", "&", "=");
 
     // test: "//user:pass@host:port/path?query"
     // test: "///usr/local/bin/aaa"
