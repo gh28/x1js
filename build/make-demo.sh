@@ -7,10 +7,10 @@ cat > $top/out/demo.html << EOF
 <head>
     <title>demo</title>
     <script type="text/javascript">
-`cat $top/src/_G.js`
-`cat $top/src/x1.js`
-`cat $top/src/import.js`
-`cat $top/src/P.js`
+`cat $top/src/lang/_G.js`
+`cat $top/src/lang/x1.js`
+`cat $top/src/lang/import.js`
+`cat $top/src/lang/P.js`
     </script>
 </head>
 <body>
