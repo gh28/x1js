@@ -15,13 +15,10 @@ cat > $top/out/demo.html << EOF
 </head>
 <body>
     <script>
-P.addConfig("jQuery", {
-    "uri": "https://code.jquery.com/jquery-3.2.1.min.js",
-    "onLoaded": function() {
-        P.ask().answer("jQuery", function() {
-            return jQuery;
-        });
-    }
+P.addConfig("jQuery", "https://code.jquery.com/jquery-3.2.1.min.js", function() {
+    P.ask().answer("jQuery", function() {
+        return jQuery;
+    });
 });
 P.ask("init").answer(function() {
     var div = document.createElement("div");

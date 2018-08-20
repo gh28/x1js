@@ -15,27 +15,31 @@
     // -----------------------------------------------------
 
     var _configs = {
-        // "aaa": {
-        //     uri: "path/to/script"
-        //     depends: ["bbb", "ccc"],
-        //     onLoaded: function(event) {
-        //     }
+        // name: {
+        //     uri: string
+        //     onLoad: function(object)
         // }
     };
 
-    P.addConfig = function(name, config) {
+    P.addConfig = function(name, uri, onLoad) {
         assert(isString(name), "E: invalid argument: string expected");
-        assert(isObject(config), "E: invalid argument: object expected");
-        _configs[name] = config;
+        assert(isString(uri), "E: invalid argument: string expected");
+        assert(isVoid(onLoad) || isFunction(onLoad), "E: invalid argument: function expected");
+        if (!isVoid(_configs[name])) {
+            throw "E: name conflict";
+        }
+        _configs[name] = {
+            uri: uri,
+            onLoad: onLoad
+        };
         return P;
     };
 
-    var loadJsByConfig = function(config) {
-        assert(isString(config.uri));
-        assert(isFunction(config.onLoaded));
+    var loadjs = function(src, onLoad) {
+        assert(isString(src));
+        assert(isVoid(onLoad) || isFunction(onLoad));
         if (_G._vm === "browser") {
             // add script tag
-            var src = config["uri"];
             var a = document.getElementsByTagName("script");
             if (a) {
                 a = Array.prototype.slice.call(a);
@@ -48,22 +52,20 @@
             var newScript = document.createElement("script");
             newScript.setAttribute("type", "text/javascript");
             newScript.setAttribute("src", src);
-            if (isFunction(config["onLoaded"])) {
+            if (isFunction(onLoad)) {
                 newScript.addEventListener("load", function(event) {
                     event.target.removeEventListener(event.target, a);
-                    config["onLoaded"](event);
+                    onLoad(event);
                 });
             }
             document.head.append(newScript);
         } else if (_G._vm === "node") {
             // no will to violate rules of server-side js, but be prepared for all contingencies
-            (function(name, src) {
-                register(name, [], function() {
-                    return require(src);
-                });
-            })(name, src);
+            var o = require(src);
+            onLoad(o);
         }
     };
+    P.loadjs = loadjs;
 
     // -----------------------------------------------------
 
@@ -188,7 +190,7 @@
 
                     var config = _configs[depName];
                     if (config) {
-                        loadJsByConfig(config);
+                        loadjs(config.uri, config.onLoad);
                     }
                 }
             }
