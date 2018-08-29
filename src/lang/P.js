@@ -9,31 +9,32 @@
 
     var P = _G[name] = {
         _name: name,
-        _version: 871
+        _version: 872
     };
 
     // -----------------------------------------------------
 
-    var _configs = {
+    var configs = {
         // name: {
         //     uri: string
         //     onLoad: function(object)
         // }
     };
 
-    P.addConfig = function(name, uri, onLoad) {
+    var addConfig = function(name, uri, onLoad) {
         assert(isString(name), "E: invalid argument: string expected");
         assert(isString(uri), "E: invalid argument: string expected");
         assert(isVoid(onLoad) || isFunction(onLoad), "E: invalid argument: function expected");
-        if (!isVoid(_configs[name])) {
+        if (!isVoid(configs[name])) {
             throw "E: name conflict";
         }
-        _configs[name] = {
+        configs[name] = {
             uri: uri,
             onLoad: onLoad
         };
         return P;
     };
+    P.addConfig = addConfig;
 
     var loadjs = function(src, onLoad) {
         assert(isString(src));
@@ -79,16 +80,6 @@
         }
     })();
 
-    var createWrapper = function(name, depNames, fn) {
-        return {
-            name: name,
-            depNames: depNames || [],
-            fn: fn,
-            p: 0,
-            result: null
-        };
-    };
-
     var store = (function() {
         var _store = {
             // "key": value
@@ -118,130 +109,115 @@
         };
     })();
 
-    var schedule = (function() {
-
-        var _readys = [
-            // wrapper, wrapper, ...
-        ];
+    var accept = (function() {
+        var readys = [];
 
         var blockers = {
-            // depName: [name, name, ...]
+            // blockerName: [name, name, ...]
         };
+
+        var isWorking = false;
+
+        function work() {
+            logd("I: [" + Object.keys(blockers).length + "] blockers remaining")
+            if (isWorking) {
+                return;
+            }
+            isWorking = true;
+
+            var o = readys.shift();
+            var blockerResults = [];
+            for (var i in o.blockerNames) {
+                var blocker = store.get(o.blockerNames[i]);
+                blockerResults[i] = blocker.result;
+            }
+            o.result = o.fn.apply(o, blockerResults) || {};
+
+            var blockedNames = blockers[o.name] || [];
+            for (var i in blockedNames) {
+                var blocked = store.get(blockedNames[i]);
+                blocked.p--;
+                if (blocked.p === 0) {
+                    markReady(blocked);
+                }
+            }
+            delete blockers[o.name];
+
+            if (readys.length == 0) {
+                sleep();
+            }
+            isWorking = false;
+        }
 
         var timerToken = -1;
 
-        var isExecuting = false;
-
-        var getDepResults = function(wrapper) {
-            var depResults = [];
-            for (var i in wrapper.depNames) {
-                depResults[i] = store.get(wrapper.depNames[i]).result;
-            }
-            return depResults;
-        }
-
-        function addToReadys(wrapper) {
-            _readys.push(wrapper);
-            if (_readys.length > 0 && timerToken == -1) {
-                // unnecessary for a distinct message queue
-                timerToken = setInterval(execute, 15);
+        function awake() {
+            if (readys.length > 0 && timerToken == -1) {
+                timerToken = setInterval(work, 15);
             }
         }
 
-        function execute() {
-            logd("I: [" + Object.keys(blockers).length + "] blockers remaining")
-            if (isExecuting) {
-                return;
-            }
+        function sleep() {
+            clearInterval(timerToken);
+            timerToken = -1;
+        }
 
-            isExecuting = true;
-            var wrapper = _readys.shift();
-            wrapper.result = wrapper.fn.apply(wrapper, getDepResults(wrapper)) || {};
-
-            var blockedNames = blockers[wrapper.name] || [];
-            for (var i in blockedNames) {
-                var blockedWrapper = store.get(blockedNames[i]);
-                blockedWrapper.p--;
-                if (blockedWrapper.p === 0) {
-                    addToReadys(blockedWrapper);
-                }
-            }
-            delete blockers[wrapper.name];
-
-            if (_readys.length == 0) {
-                clearInterval(timerToken);
-                timerToken = -1;
-            }
-            isExecuting = false;
+        function markReady(o) {
+            readys.push(o);
+            awake();
         }
 
         return function(name) {
-            var wrapper = store.get(name);
-            for (var i in wrapper.depNames) {
-                var depName = wrapper.depNames[i];
-                var dep = store.get(depName);
-                if (!dep || !dep.result) {
+            var o = store.get(name);
+            for (var i in o.blockerNames) {
+                var blockerName = o.blockerNames[i];
+                var blocker = store.get(blockerName);
+                if (!blocker || !blocker.result) {
                     // being blocked
-                    if (!blockers[depName]) {
-                        blockers[depName] = [];
+                    if (!blockers[blockerName]) {
+                        blockers[blockerName] = [];
                     }
-                    blockers[depName].push(wrapper.name);
-                    wrapper.p++;
+                    blockers[blockerName].push(o.name);
+                    o.p++;
 
-                    var config = _configs[depName];
+                    var config = configs[blockerName];
                     if (config) {
                         loadjs(config.uri, config.onLoad);
                     }
                 }
             }
-            if (wrapper.p === 0) {
-                addToReadys(wrapper);
+            if (o.p === 0) {
+                markReady(o);
             }
         };
     })();
 
-    var register = function(name, depNames, fn) {
-        if (store.contains(name)) {
-            throw "E: name conflict";
-        }
-        store.put(name, createWrapper(name, depNames, fn));
-        schedule(name);
-    }
-
     var ask = function() {
-        var depNames = Array.prototype.slice.call(arguments);
-
-        function answer(name, fn) {
-            if (arguments.length == 0) {
-                throw "E: invalid argument: nothing received";
-            } else if (arguments.length == 1) {
-                var arg0 = arguments[0];
-                if (isString(arg0)) {
-                    fn = null;
-                } else if (isFunction(arg0)) {
-                    fn = arg0;
-                    name = null;
-                } else {
-                    throw "E: invalid argument [" + name + "]";
-                }
-            } else {
-                // take name & fn
-            }
-
-            if (!name) {
-                name = genName();
-            }
-            if (!fn) {
-                fn = dummy;
-            }
-
-            register(name, depNames, fn);
-        }
-
+        var a = Array.prototype.slice.call(arguments);
         return {
-            answer: answer
+            answer: function(name, fn) {
+                if (isVoid(name)) {
+                    name = genName();
+                } else if (!isString(name)) {
+                    throw "E: invalid argument: String expected";
+                } else if (store.contains(name)) {
+                    throw "E: name conflict";
+                }
+                if (isVoid(fn)) {
+                    fn = dummy;
+                } else if (!isFunction(fn)) {
+                    throw "E: invalid argument: Function expected";
+                }
+                store.put(name, {
+                    blockerNames: a || [],
+                    name: name,
+                    fn: fn,
+                    p: 0,
+                    result: null
+                });
+                accept(name);
+            }
         };
-    }
-
+    };
     P.ask = ask;
 })(_G, "P");

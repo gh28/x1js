@@ -8,7 +8,6 @@ cat > $top/out/demo.html << EOF
     <title>demo</title>
     <script type="text/javascript">
 `cat $top/src/lang/_G.js`
-`cat $top/src/lang/x1.js`
 `cat $top/src/lang/import.js`
 `cat $top/src/lang/P.js`
     </script>
@@ -20,7 +19,7 @@ P.addConfig("jQuery", "https://code.jquery.com/jquery-3.2.1.min.js", function() 
         return jQuery;
     });
 });
-P.ask("init").answer(function() {
+P.ask("init").answer(null, function() {
     var div = document.createElement("div");
     div.textContent = "hello world";
     document.body.appendChild(div);
