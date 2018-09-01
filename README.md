@@ -31,14 +31,14 @@ I implement it in javascript for web pages.
 
 I implement it in lua as an addon framework for _World of Warcraft_.
 
-I have been proud of it for years.
+I am satisfied with it for years.
 
 UNTIL I SEE _REQUIREJS_.
 
-### But there are still something different, I believe
+### But there are something different, I believe
 
 整体较为精致小巧，事件依赖的设计逻辑上有些许可观之处，用定时器的实现的自调度也显简明。
 
-Also, thoughts and code fragments come to me during these years, converging into this library.
+Also, the thoughts and code fragments came to me during these years, converge into this library.
 
 > 做了一些简化和优化，作为纪念，以及思想的一点证明。
