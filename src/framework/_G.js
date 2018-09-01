@@ -33,12 +33,6 @@
 })();
 
 /**
- *  what i call "struct-based design":
- *    - a function can be every object's "member method", as long as the object has corresponding fields
- *    - o and o.static has their own inheritance line, respectively
- */
-
-/**
  * facility
  */
 (function(_G) {
@@ -54,6 +48,7 @@
     _G.isFunction = function(o) {
         return typeof(o) === "function";
     };
+    _G.isCallable = isFunction;
 
     _G.isString = function(o) {
         return typeof(o) === "string";
@@ -67,18 +62,18 @@
         return Object.prototype.toString.call(o) === "[object Object]";
     };
 
+    _G.forEach = function(o, callback) {
+        for (var k in o) {
+            callback(k, o[k]);
+        }
+    };
+
     _G.assert = function(value, message) {
         return console.assert(value, message);
     };
 
     _G.logd = function(message) {
         return console.log(message);
-    };
-
-    _G.forEach = function(o, callback) {
-        for (var k in o) {
-            callback(k, o[k]);
-        }
     };
 })(_G);
 
@@ -93,7 +88,7 @@
 
     // --------
 
-    var O = {};
+    var O = Object.create(null);
 
     O.setMember = function(key, value, ro) {
         assert(isString(key));
@@ -106,31 +101,9 @@
         });
     };
 
-    O.setProto = function(proto) {
-        var o = this;
-        // o.__proto__ = proto;
-        return Object.setPrototypeOf(o, proto);
-    };
-
-    O.getProto = function() {
-        var o = this;
-        // return o.__proto__;
-        return Object.getPrototypeOf(o);
-    };
-
-    O.hasOwn = function(key) {
-        return Object.prototype.hasOwnProperty.call(this, key);
-    };
-
-    O.merge = function(q) {
+    O.merge = function(o) {
         var p = this;
-        if (!!q) {
-            for (var k in q) {
-                if (!O.hasOwn.call(p, k) && O.hasOwn.call(q, k)) {
-                    p[k] = q[k];
-                }
-            }
-        }
+        Cmap.merge(p, o);
         return p;
     };
 
@@ -140,7 +113,7 @@
 
     // --------
 
-    var L = {};
+    var L = Object.create(null);
 
     L.add = Array.prototype.push;
 
@@ -150,9 +123,7 @@
 
     // --------
 
-    var S = {};
-
-    S.setMember("static", {});
+    var S = Object.create(null);
 
     S.codeAt = String.prototype.codePointAt;
 

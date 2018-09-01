@@ -1,6 +1,6 @@
 "use strict";
 
-var Cookie = createClass(Object.prototype, function() {
+var Cookie = newClass(Object.prototype, function() {
     this.merge({
         _key: null,
         _value: null,

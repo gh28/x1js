@@ -1,6 +1,6 @@
 "use strict";
 
-var Timer = createClass(Object.prototype, function() {
+var Timer = newClass(Object.prototype, function() {
     this.merge({
         _callback: null,
         _delay: 0,

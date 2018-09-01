@@ -2,12 +2,12 @@
 
 // ---------------------------------------------------------
 
-var Session = createClass(Object.prototype, function(sessionId) {
+var Session = newClass(Object.prototype, function(sessionId) {
     this.merge({
         _id: sessionId || null,
         _timeout: 0,
         _ctime: +new Date(),
-        _valueStore: Store.static.create()
+        _valueStore: Store.create()
     });
 });
 
@@ -40,15 +40,15 @@ Session.remove = function(key) {
 };
 
 Session.removeAll = function() {
-    this._valueStore.clear();
+    Cmap.clear(this._valueStore);
 };
 
 // ---------------------------------------------------------
 
-var SessionManager = createClass(Object.prototype, function(timeout) {
+var SessionManager = newClass(Object.prototype, function(timeout) {
     return {
         _sessionTimeout: timeout,
-        _sessionStore: Store.static.create()
+        _sessionStore: Store.create()
     };
 });
 
@@ -57,7 +57,7 @@ SessionManager.updateSession = function(sessionId) {
     if (!sessionId) {
         // create operation
         sessionId = +new Date() + "-" + Math.random() * 1000;
-        session = Session.static.create(sessionId);
+        session = Session.create(sessionId);
         this.putSession(session);
     } else {
         // update operation

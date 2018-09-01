@@ -1,9 +1,9 @@
 "use strict";
 
-var Store = createClass(Object.prototype, function() {
-    this.merge({
-        _store: {}
-    });
+const Store = newClass(Object.prototype, function() {
+    this._store = {
+        // "key" : value
+    };
 });
 
 Store.get = function(key) {
@@ -27,5 +27,5 @@ Store.remove = function(key) {
 };
 
 Store.clear = function() {
-    Cmap.clear.call(this._store);
+    Cmap.clear(this._store);
 };

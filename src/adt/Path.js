@@ -1,6 +1,6 @@
 "use strict";
 
-var Path = createClass(String.prototype, null);
+var Path = newClass(String.prototype, null);
 
 Path.isAbsolute = function() {
     return this._a[0] == "";

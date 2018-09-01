@@ -1,90 +1,105 @@
-const Cmap = createClass(Object.proto, null);
+"use strict";
 
-Cmap.clear = function() {
-    var o = this;
-    for (var k in o) {
-        if (o.hasOwn()) {
-            delete o[k];
-        }
-    }
-};
+// static class Cmap
+const Cmap = (function() {
 
-Cmap.copy = function() {
-    var p = this;
-    var q = Object.create(p.getProto());
-    for (var k in p) {
-        if (p.hasOwn(k)) {
-            q[k] = p[k];
-        }
-    }
-    return q;
-};
+    const Cmap = Object.create(null);
 
-Cmap.deepCopy = function() {
-    var p = this;
-    var q = Object.create(p.getProto());
-    for (var k in p) {
-        if (p.hasOwn(k)) {
-            if (isObject(p[k])) {
-                q[k] = arguments.callee.call(p[k]);
-            } else {
-                q[k] = p[k];
+    Cmap.clear = function(p) {
+        for (var k in p) {
+            if (p.hasOwnProperty(k)) {
+                delete p[k];
             }
         }
-    }
-    return q;
-};
+    };
 
-Cmap.static.fromOneLine = function(s, majorSeparator, minorSeparator) {
-    assert(isString(s), "E: invalid argument [" + s + "]");
-    majorSeparator = majorSeparator || "&";
-    minorSeparator = minorSeparator || "=";
-    var o = {};
-    var a = s.split(majorSeparator);
-    for (var i = 0; i < a.length; ++i) {
-        var p = a[i].split(minorSeparator);
-        if (p[0]) {
-            o[p[0]] = (p[1] || "1");
+    Cmap.copy = function(p) {
+        var o = Object.create(Object.getPrototypeOf(p));
+        for (var k in p) {
+            if (p.hasOwnProperty(k)) {
+                o[k] = p[k];
+            }
         }
-    }
-    return o;
-};
+        return o;
+    };
 
-// FIXME encode values
-Cmap.toOneLine = function(majorSeparator, minorSeparator) {
-    majorSeparator = majorSeparator || "&";
-    minorSeparator = minorSeparator || "=";
-    var o = this;
-    var a = [];
-    for (var k in o) {
-        if (o.hasOwn(k) && !isVoid(o[k])) {
-            a.push(k + minorSeparator + o[k]);
+    function isObject(o) {
+        return Object.prototype.toString.call(o) === "[object Object]";
+    }
+
+    Cmap.deepCopy = function(p) {
+        var o = Object.create(Object.getPrototypeOf(p));
+        for (var k in p) {
+            if (p.hasOwnProperty(k)) {
+                if (isObject(p[k])) {
+                    o[k] = Cmap.deepCopy(p[k]);
+                } else {
+                    o[k] = p[k];
+                }
+            }
         }
-    }
-    return a.join(majorSeparator);
-};
+        return o;
+    };
 
-// ---- as an entry set ----
-
-// A \ B = A union B remove B
-Cmap.toComplement = function(q) {
-    var p = this;
-    var o = {};
-    for (var k in p) {
-        if (p.hasOwn(p) && !q.hasOwn(k)) {
-            o[k] = p[k];
+    Cmap.merge = function(p, q) {
+        if (!!q) {
+            for (var k in q) {
+                if (!p.hasOwnProperty(k) && q.hasOwnProperty(k)) {
+                    p[k] = q[k];
+                }
+            }
         }
-    }
-    return o;
-};
+        return p;
+    };
 
-Cmap.toIntersection = function(q) {
-    var p = this;
-    var o = {};
-    for (var k in p) {
-        if (p.hasOwn(k) && q.hasOwn(k)) {
-            o[k] = p[k];
+    // A \ B = A union B remove B
+    Cmap.getComplement = function(p, q) {
+        var result = {};
+        for (var k in p) {
+            if (p.hasOwnProperty(p) && !q.hasOwnProperty(k)) {
+                result[k] = p[k];
+            }
         }
-    }
-    return o;
-};
+        return result;
+    };
+
+    Cmap.getIntersection = function(p, q) {
+        var result = {};
+        for (var k in p) {
+            if (p.hasOwnProperty(k) && q.hasOwnProperty(k)) {
+                result[k] = p[k];
+            }
+        }
+        return result;
+    };
+
+    // FIXME escape values
+    Cmap.toString = function(p, majorSeparator, minorSeparator) {
+        majorSeparator = majorSeparator || "&";
+        minorSeparator = minorSeparator || "=";
+        var a = [];
+        for (var k in p) {
+            if (p.hasOwnProperty(k) && !isVoid(p[k])) {
+                a.push(k + minorSeparator + p[k]);
+            }
+        }
+        return a.join(majorSeparator);
+    };
+
+    Cmap.fromString = function(s, majorSeparator, minorSeparator) {
+        assert(isString(s), "E: invalid argument [" + s + "]");
+        majorSeparator = majorSeparator || "&";
+        minorSeparator = minorSeparator || "=";
+        var o = {};
+        var a = s.split(majorSeparator);
+        for (var i = 0; i < a.length; ++i) {
+            var p = a[i].split(minorSeparator);
+            if (p[0]) {
+                o[p[0]] = (p[1] || "1");
+            }
+        }
+        return o;
+    };
+
+    return Cmap;
+})();

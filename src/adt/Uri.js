@@ -5,7 +5,7 @@
 // to parse uri(mostly url) into an object and reverse
 // see http://docs.oracle.com/javase/1.5.0/docs/api/java/net/URI.html
 
-var Uri = createClass(Object.prototype, function() {
+var Uri = newClass(Object.prototype, function() {
     this.merge({
         source: null,
         scheme: null,
@@ -73,8 +73,8 @@ Uri.toString = function() {
     return s;
 };
 
-Uri.static.fromString = function(uriString) {
-    var uri = Uri.static.create();
+Uri.fromString = function(uriString) {
+    var uri = Uri.create();
     uri.source = uriString;
     // test: [scheme:]scheme-specific-part[#fragment]
     var captured = uriString.match("^"
@@ -87,7 +87,7 @@ Uri.static.fromString = function(uriString) {
     uri.fragment = captured[5];
     parseSchemeSpecificPart(uri);
     return uri;
-}
+};
 
 function parseSchemeSpecificPart(uri) {
     if (uri.schemeSpecificPart) {
@@ -123,7 +123,7 @@ function parseSchemeSpecificPart(uri) {
         uri.pass = captured[3];
     }
 
-    uri.query = Cmap.static.fromOneLine.call({}, uri.query || "", "&", "=");
+    uri.query = Cmap.fromString(uri.query || "", "&", "=");
 
     // test: "//user:pass@host:port/path?query"
     // test: "///usr/local/bin/aaa"
