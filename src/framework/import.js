@@ -10,9 +10,6 @@
  */
 (function(_G) {
 
-    function dummy() {
-    }
-
     _G.newClass = function(superClass, ctor) {
         if (isVoid(superClass)) {
             superClass = null;
@@ -36,10 +33,11 @@
                 stack.push(superClass);
                 superClass = Object.getPrototypeOf(superClass);
             }
+            var args = Array.prototype.slice.apply(arguments);
             while (stack.length > 0) {
                 var C = stack.pop();
                 if (isFunction(C.ctor)) {
-                    C.ctor.apply(o, Array.prototype.slice.apply(arguments));
+                    C.ctor.apply(o, args);
                 }
             }
             Object.setPrototypeOf(o, Class);

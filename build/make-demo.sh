@@ -7,10 +7,20 @@ cat > $top/out/demo.html << EOF
 <head>
     <title>demo</title>
     <script type="text/javascript">
-`cat $top/src/primitive/Cmap.js`
-`cat $top/src/framework/_G.js`
-`cat $top/src/framework/import.js`
-`cat $top/src/framework/P.js`
+`#uglifyjs -c properties,dead_code,collapse_vars -m -- \
+    $top/src/primitive/Cmap.js \
+    $top/src/framework/{_G,import}.js \
+    $top/src/adt/{Store,Timer}.js \
+    $top/src/framework/P.js \
+`
+`cat \
+    $top/src/primitive/Cmap.js \
+    $top/src/framework/_G.js \
+    $top/src/framework/import.js \
+    $top/src/adt/Store.js \
+    $top/src/adt/Timer.js \
+    $top/src/framework/P.js \
+`
     </script>
 </head>
 <body>

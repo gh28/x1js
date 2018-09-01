@@ -1,53 +1,67 @@
-"use strict";
+var Timer = newClass(Object.prototype, null);
 
-var Timer = newClass(Object.prototype, function() {
-    this.merge({
-        _callback: null,
-        _delay: 0,
-        _token: null
-    });
-});
-
-Timer.setCallback = function(callback) {
+Timer._setCallback = function(callback) {
+    if (!isFunction(callback)) {
+        throw "E: invalid argument: function expected: " + Object.prototype.toString.call(callback);
+    }
     this._callback = callback;
-    return this;
 };
 
-Timer.setDelay = function(delay) {
+Timer._setDelay = function(delay) {
+    if (!isNumber(delay)) {
+        throw "E: invalid argument: number expected: " + Object.prototype.toString.call(delay);
+    }
     this._delay = delay;
-    return this;
 };
 
-Timer.start = function(numTimes) {
-    if (arguments.length === 0) {
-        numTimes = 0;
+Timer._setTimes = function(times) {
+    if (isVoid(times)) {
+        times = 1;
+    } else if (!isNumber(times)) {
+        throw "E: invalid argument: number expected: " + Object.prototype.toString.call(times);
+    } else {
+        times = Math.floor(times);
     }
-    assert(isNumber(numTimes) && numTimes >= 0);
-
-    if (this.isRunning()) {
-        throw "E: timer is running";
-    }
-
-    if (numTimes == 0) {
-        this._token = setInterval(this._callback, this._delay);
-        return;
-    } else if (numTimes > 0) {
-        this._token = setInterval(function() {
-            this._callback();
-            if (--numTimes == 0) {
-                this.end();
-            }
-        }, this._delay);
-    }
-};
-
-Timer.end = function() {
-    if (this.isRunning()) {
-        clearInterval(this._token);
-        this._token = null;
-    }
+    this._times = times;
 };
 
 Timer.isRunning = function() {
-    return isVoid(this._token);
+    return !isVoid(this._intervalToken);
+};
+
+Timer.schedule = function(callback, delay, times) {
+    this._setCallback(callback);
+    this._setDelay(delay);
+    this._setTimes(times);
+
+    this._onDelay = function() {
+        if (this._count++ < this._times) {
+            this._callback();
+        } else {
+            this.stop();
+        }
+    }.bind(this);
+
+    this._count = 0;
+    this._intervalToken = setInterval(this._onDelay, this._delay);
+
+    return this;
+};
+
+Timer.stop = function() {
+    if (this.isRunning()) {
+        clearInterval(this._intervalToken);
+        this._intervalToken = null;
+    }
+    return this;
+};
+
+Timer.reschedule = function() {
+    if (!isFunction(this._onDelay) || !isNumber(this._delay) || !isNumber(this._times)) {
+        throw "E: timer is not configured";
+    }
+    this.stop();
+    this._count = 0;
+    this._intervalToken = setInterval(this._onDelay, this._delay);
+    return this;
 };

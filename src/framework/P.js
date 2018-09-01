@@ -1,7 +1,6 @@
 /**
  * P the dependency resolver and post-loader
  */
-
 (function(_G, name) {
     if (typeof _G[name] !== "undefined") {
         throw "E: name conflict";
@@ -9,7 +8,7 @@
 
     var P = _G[name] = {
         _name: name,
-        _version: 872
+        _version: 873
     };
 
     // -----------------------------------------------------
@@ -70,9 +69,6 @@
 
     // -----------------------------------------------------
 
-    var dummy = function() {
-    }
-
     var genName = (function() {
         var i = 0;
         return function() {
@@ -80,34 +76,7 @@
         }
     })();
 
-    var store = (function() {
-        var _store = {
-            // "key": value
-        };
-
-        var get = function(key) {
-            return _store[key] || null;
-        };
-
-        var put = function(key, value) {
-            _store[key] = value;
-        }
-
-        var contains = function(key) {
-            return !!get(key);
-        }
-
-        var remove = function(key) {
-            delete _store[key];
-        };
-
-        return {
-            contains: contains,
-            get: get,
-            put: put,
-            remove: remove
-        };
-    })();
+    var store = Store.create();
 
     var accept = (function() {
         var readys = [];
@@ -119,8 +88,10 @@
         var isWorking = false;
 
         function work() {
-            logd("I: [" + Object.keys(blockers).length + "] blockers remaining")
             if (isWorking) {
+                return;
+            }
+            if (readys.length == 0) {
                 return;
             }
             isWorking = true;
@@ -143,31 +114,30 @@
             }
             delete blockers[o.name];
 
-            if (readys.length == 0) {
-                sleep();
-            }
             isWorking = false;
         }
 
-        var timerToken = -1;
+        var workTrigger = Timer.create()
+            .schedule(work, 15, Infinity)
+            .stop();
 
-        function awake() {
-            if (readys.length > 0 && timerToken == -1) {
-                timerToken = setInterval(work, 15);
-            }
-        }
-
-        function sleep() {
-            clearInterval(timerToken);
-            timerToken = -1;
-        }
+        var workThrottler = Timer.create()
+            .schedule(function() {
+                    workTrigger.stop();
+                }, 50, 1)
+            .stop();
 
         function markReady(o) {
             readys.push(o);
-            awake();
+            if (!workThrottler.isRunning()) {
+                workTrigger.reschedule();
+                workThrottler.reschedule();
+            } else {
+                workThrottler.reschedule();
+            }
         }
 
-        return function(name) {
+        function accept(name) {
             var o = store.get(name);
             for (var i in o.blockerNames) {
                 var blockerName = o.blockerNames[i];
@@ -190,6 +160,19 @@
                 markReady(o);
             }
         };
+
+        Timer.create().schedule(function() {
+            var isLogging = false;
+            Timer.create().schedule(function() {
+                var size = Object.keys(blockers).length;
+                if (size > 0 || isLogging) {
+                    logd("I: [" + size + "] blockers remaining");
+                }
+                isLogging = size > 0;
+            }, 1000, 12);
+        }, 4000, 1);
+
+        return accept;
     })();
 
     var ask = function() {

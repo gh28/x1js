@@ -62,6 +62,10 @@
         return Object.prototype.toString.call(o) === "[object Object]";
     };
 
+    _G.dummy = function() {
+        // dummy
+    };
+
     _G.forEach = function(o, callback) {
         for (var k in o) {
             callback(k, o[k]);
