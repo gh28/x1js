@@ -3,10 +3,10 @@
 /**
  *  what i call "struct-based design":
  *    - a function can be every object's "member method", as long as the object has corresponding member variables
- *    - isObject(Class) && !isFunction(Class);
- *    - Class.getProto() == SuperClass;
- *    - object = Class.create();
- *    - object.getProto() == Class;
+ *    - class is kind of object rather than function
+ *    - class is object's prototype
+ *    - class' prototype is super class
+ *    - class supervises constructor
  */
 (function(_G) {
 
