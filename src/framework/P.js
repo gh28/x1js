@@ -1,14 +1,17 @@
 /**
  * P the dependency resolver and post-loader
  */
-(function(_G, name) {
-    if (typeof _G[name] !== "undefined") {
+(function(_G) {
+    var NAME = "P";
+    var VERSION = 873;
+
+    if (typeof _G[NAME] !== "undefined") {
         throw "E: name conflict";
     }
 
-    var P = _G[name] = {
-        _name: name,
-        _version: 873
+    var P = _G[NAME] = {
+        _name: NAME,
+        _version: VERSION
     };
 
     // -----------------------------------------------------
@@ -79,6 +82,7 @@
     var store = Store.create();
 
     var accept = (function() {
+
         var readys = [];
 
         var blockers = {
@@ -184,12 +188,12 @@
                 } else if (!isString(name)) {
                     throw "E: invalid argument: String expected";
                 } else if (store.contains(name)) {
-                    throw "E: name conflict";
+                    throw "E: name conflict: [" + name + "] already exists";
                 }
                 if (isVoid(fn)) {
                     fn = dummy;
                 } else if (!isFunction(fn)) {
-                    throw "E: invalid argument: Function expected";
+                    throw "E: invalid argument: function expected";
                 }
                 store.put(name, {
                     blockerNames: a || [],
@@ -203,4 +207,4 @@
         };
     };
     P.ask = ask;
-})(_G, "P");
+})(_G);
