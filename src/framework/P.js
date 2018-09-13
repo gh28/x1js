@@ -168,11 +168,14 @@
         Timer.create().schedule(function() {
             var isLogging = false;
             Timer.create().schedule(function() {
-                var size = Object.keys(blockers).length;
-                if (size > 0 || isLogging) {
-                    logd("I: [" + size + "] blockers remaining");
+                var blockerNames = Object.getOwnPropertyNames(blockers);
+                if (blockerNames.length > 0 || isLogging) {
+                    logd("W: [" + blockerNames.length + "] blockers remaining: " + blockerNames.join(", "));
                 }
-                isLogging = size > 0;
+                if (readys.length > 0 || isLogging) {
+                    logd("W: [" + readys.length + "] readys remaining");
+                }
+                isLogging = blockerNames.length > 0 || readys.length > 0;
             }, 1000, 12);
         }, 4000, 1);
 
