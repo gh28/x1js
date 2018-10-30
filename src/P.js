@@ -17,7 +17,7 @@
 
     // -----------------------------------------------------
 
-    var configs = {
+    var allConfigs = {
         // name: {
         //     uri: string
         //     onLoad: function(object)
@@ -25,13 +25,10 @@
     };
 
     var addConfig = function(name, uri, onLoad) {
-        assert(isString(name), "E: invalid argument: string expected");
-        assert(isString(uri), "E: invalid argument: string expected");
-        assert(isVoid(onLoad) || isFunction(onLoad), "E: invalid argument: function expected");
-        if (!isVoid(configs[name])) {
+        if (!!allConfigs[name]) {
             throw "E: name conflict";
         }
-        configs[name] = {
+        allConfigs[name] = {
             uri: uri,
             onLoad: onLoad
         };
@@ -39,24 +36,22 @@
     };
     P.addConfig = addConfig;
 
-    var loadjs = function(src, onLoad) {
-        assert(isString(src));
-        assert(isVoid(onLoad) || isFunction(onLoad));
+    var loadjs = function(uri, onLoad) {
         if (_G._vm === "browser") {
             // add script tag
             var a = document.getElementsByTagName("script");
             if (a) {
                 a = Array.prototype.slice.call(a);
                 for (var i in a) {
-                    if (a[i].getAttribute("src") === src) {
+                    if (a[i].getAttribute("src") === uri) {
                         return;
                     }
                 }
             }
             var newScript = document.createElement("script");
             newScript.setAttribute("type", "text/javascript");
-            newScript.setAttribute("src", src);
-            if (isFunction(onLoad)) {
+            newScript.setAttribute("src", uri);
+            if (typeof(onLoad) == "function") {
                 newScript.addEventListener("load", function(event) {
                     event.target.removeEventListener(event.target, a);
                     onLoad(event);
@@ -65,7 +60,7 @@
             document.head.append(newScript);
         } else if (_G._vm === "node") {
             // no will to violate rules of server-side js, but be prepared for all contingencies
-            var o = require(src);
+            var o = require(uri);
             onLoad(o);
         }
     };
@@ -80,14 +75,16 @@
         }
     })();
 
-    var store = Store.create();
+    var allItems = {
+        // name = meta
+    };
 
     var accept = (function() {
 
-        var readys = [];
+        var preparedItems = [];
 
-        var blockers = {
-            // blockerName: [name, name, ...]
+        var blockingQueues = {
+            // name: [name, name, ...]
         };
 
         var isWorking = false;
@@ -96,66 +93,82 @@
             if (isWorking) {
                 return;
             }
-            if (readys.length == 0) {
+            if (preparedItems.length == 0) {
                 return;
             }
             isWorking = true;
 
-            var o = readys.shift();
+            var o = preparedItems.shift();
             var blockerResults = [];
             for (var i in o.blockerNames) {
-                var blocker = store.get(o.blockerNames[i]);
+                var blocker = allItems[o.blockerNames[i]];
                 blockerResults[i] = blocker.result;
             }
             o.result = o.fn.apply(o, blockerResults) || {};
 
-            var blockedNames = blockers[o.name] || [];
+            var blockedNames = blockingQueues[o.name] || [];
             for (var i in blockedNames) {
-                var blocked = store.get(blockedNames[i]);
+                var blocked = allItems[blockedNames[i]];
                 blocked.p--;
                 if (blocked.p === 0) {
                     markReady(blocked);
                 }
             }
-            delete blockers[o.name];
+            delete blockingQueues[o.name];
 
             isWorking = false;
         }
 
-        var workTrigger = Timer.create()
-            .schedule(work, 15, Infinity)
-            .stop();
+        var workTrigger = null;
 
-        var workThrottler = Timer.create()
-            .schedule(function() {
-                    workTrigger.stop();
-                }, 50, 1)
-            .stop();
+        function startWorking() {
+            if (workTrigger === null) {
+                workTrigger = setInterval(work, 15);
+            }
+        }
+
+        function stopWorking() {
+            if (workTrigger != null) {
+                clearInterval(workTrigger);
+                workTrigger = null;
+            }
+        }
+
+        var workThrottler = null;
+
+        function startWorkThrottler() {
+            if (workThrottler === null) {
+                workThrottler = setTimeout(function() {
+                    stopWorking();
+                }, 50);
+            }
+        }
 
         function markReady(o) {
-            readys.push(o);
-            if (!workThrottler.isRunning()) {
-                workTrigger.reschedule();
-                workThrottler.reschedule();
+            preparedItems.push(o);
+            if (workThrottler === null) {
+                startWorking();
+                startWorkThrottler();
             } else {
-                workThrottler.reschedule();
+                clearTimeout(workThrottler);
+                startWorkThrottler();
             }
         }
 
         function accept(name) {
-            var o = store.get(name);
+            var o = allItems[name];
             for (var i in o.blockerNames) {
                 var blockerName = o.blockerNames[i];
-                var blocker = store.get(blockerName);
+                var blocker = allItems[blockerName];
                 if (!blocker || !blocker.result) {
                     // being blocked
-                    if (!blockers[blockerName]) {
-                        blockers[blockerName] = [];
+                    if (!blockingQueues[blockerName]) {
+                        blockingQueues[blockerName] = [];
                     }
-                    blockers[blockerName].push(o.name);
+                    blockingQueues[blockerName].push(o.name);
                     o.p++;
 
-                    var config = configs[blockerName];
+                    var config = allConfigs[blockerName];
                     if (config) {
                         loadjs(config.uri, config.onLoad);
                     }
@@ -166,19 +179,24 @@
             }
         };
 
-        Timer.create().schedule(function() {
+        setTimeout(function() {
             var isLogging = false;
-            Timer.create().schedule(function() {
-                var blockerNames = Object.getOwnPropertyNames(blockers);
+            var n = 0;
+            var p = setInterval(function() {
+                if (n == 12) {
+                    clearInterval(p);
+                    return;
+                }
+                var blockerNames = Object.getOwnPropertyNames(blockingQueues);
                 if (blockerNames.length > 0 || isLogging) {
-                    logd("W: [" + blockerNames.length + "] blockers remaining: " + blockerNames.join(", "));
+                    logd("W: [" + blockerNames.length + "] blockingQueues remaining: " + blockerNames.join(", "));
                 }
-                if (readys.length > 0 || isLogging) {
-                    logd("W: [" + readys.length + "] readys remaining");
+                if (preparedItems.length > 0 || isLogging) {
+                    logd("W: [" + preparedItems.length + "] preparedItems remaining");
                 }
-                isLogging = blockerNames.length > 0 || readys.length > 0;
-            }, 1000, 12);
-        }, 4000, 1);
+                isLogging = blockerNames.length > 0 || preparedItems.length > 0;
+            }, 1000);
+        }, 4000);
 
         return accept;
     })();
@@ -187,25 +205,27 @@
         var a = Array.prototype.slice.call(arguments);
         return {
             answer: function(name, fn) {
-                if (isVoid(name)) {
+                if (name === null) {
                     name = genName();
-                } else if (!isString(name)) {
+                } else if (typeof(name) != "string") {
                     throw "E: invalid argument: String expected";
-                } else if (store.contains(name)) {
+                } else if (!!allItems[name]) {
                     throw "E: name conflict: [" + name + "] already exists";
                 }
-                if (isVoid(fn)) {
-                    fn = dummy;
-                } else if (!isFunction(fn)) {
+                if (fn === null) {
+                    fn = function() {
+                        // dummy
+                    };
+                } else if (typeof(fn) != "function") {
                     throw "E: invalid argument: function expected";
                 }
-                store.put(name, {
+                allItems[name] = {
                     blockerNames: a || [],
                     name: name,
                     fn: fn,
                     p: 0,
                     result: null
-                });
+                };
                 accept(name);
             }
         };

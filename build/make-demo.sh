@@ -8,18 +8,13 @@ cat > $top/out/demo.html << EOF
     <title>demo</title>
     <script type="text/javascript">
 `#uglifyjs -c properties,dead_code,collapse_vars -m -- \
-    $top/src/primitive/Cmap.js \
-    $top/src/{_G,x1}.js \
-    $top/src/adt/{Store,Timer}.js \
-    $top/src/P.js \
+    $top/src/{_G,P}.js \
 `
 `cat \
-    $top/src/primitive/Cmap.js \
     $top/src/_G.js \
-    $top/src/x1.js \
-    $top/src/adt/Store.js \
-    $top/src/adt/Timer.js \
     $top/src/P.js \
+    $top/src/x1.js \
+    $top/src/primitive/Cmap.js \
 `
     </script>
 </head>
@@ -35,7 +30,7 @@ P.ask("init").answer(null, function() {
     div.textContent = "hello world";
     document.body.appendChild(div);
 });
-P.ask("jQuery").answer("init");
+P.ask("jQuery").answer("init", null);
     </script>
 </body>
 </html>
