@@ -9,17 +9,17 @@ cat > $top/out/demo.html << EOF
     <script type="text/javascript">
 `#uglifyjs -c properties,dead_code,collapse_vars -m -- \
     $top/src/primitive/Cmap.js \
-    $top/src/framework/{_G,import}.js \
+    $top/src/{_G,x1}.js \
     $top/src/adt/{Store,Timer}.js \
-    $top/src/framework/P.js \
+    $top/src/P.js \
 `
 `cat \
     $top/src/primitive/Cmap.js \
-    $top/src/framework/_G.js \
-    $top/src/framework/import.js \
+    $top/src/_G.js \
+    $top/src/x1.js \
     $top/src/adt/Store.js \
     $top/src/adt/Timer.js \
-    $top/src/framework/P.js \
+    $top/src/P.js \
 `
     </script>
 </head>

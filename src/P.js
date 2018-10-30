@@ -2,6 +2,7 @@
  * P the dependency resolver and post-loader
  */
 (function(_G) {
+
     var NAME = "P";
     var VERSION = 873;
 
