@@ -1,20 +1,29 @@
 #!/usr/bin/env bash
-top=$(realpath $(pwd)/$(dirname $0)/..)
-mkdir -p $top/out
-cat > $top/out/demo.html << EOF
+TOP=$(realpath $(pwd)/$(dirname $0)/..)
+mkdir -p $TOP/out
+cat > $TOP/out/demo.html << EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
     <title>demo</title>
     <script type="text/javascript">
 `#uglifyjs -c properties,dead_code,collapse_vars -m -- \
-    $top/src/{_G,P}.js \
+    $TOP/x1js/src/x1.js \
+    $TOP/x1js/src/_G.js \
+    $TOP/x1js/src/Proto.js \
+    $TOP/x1js/src/Package.js \
+    $TOP/x1js/src/Cstring.js \
+    $TOP/x1js/src/Cmap.js \
+    $TOP/x1js/src/P.js \
 `
 `cat \
-    $top/src/_G.js \
-    $top/src/P.js \
-    $top/src/x1.js \
-    $top/src/primitive/Cmap.js \
+    $TOP/x1js/src/x1.js \
+    $TOP/x1js/src/_G.js \
+    $TOP/x1js/src/Proto.js \
+    $TOP/x1js/src/Package.js \
+    $TOP/x1js/src/Cstring.js \
+    $TOP/x1js/src/Cmap.js \
+    $TOP/x1js/src/P.js \
 `
     </script>
 </head>

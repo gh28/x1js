@@ -189,10 +189,10 @@
                 }
                 var blockerNames = Object.getOwnPropertyNames(blockingQueues);
                 if (blockerNames.length > 0 || isLogging) {
-                    logd("W: [" + blockerNames.length + "] blockingQueues remaining: " + blockerNames.join(", "));
+                    console.log("W: [" + blockerNames.length + "] blockingQueues remaining: " + blockerNames.join(", "));
                 }
                 if (preparedItems.length > 0 || isLogging) {
-                    logd("W: [" + preparedItems.length + "] preparedItems remaining");
+                    console.log("W: [" + preparedItems.length + "] preparedItems remaining");
                 }
                 isLogging = blockerNames.length > 0 || preparedItems.length > 0;
             }, 1000);

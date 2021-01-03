@@ -11,12 +11,13 @@
     }
 
     var _G = null;
+    var _vm = null;
     if (typeof window !== "undefined" && typeof navigator !== "undefined" && window.document) {
         _G = window;
-        _G._vm = "browser";
+        _vm = "browser";
     } else if (typeof process !== "undefined" && process.versions && process.versions.node) {
         _G = global;
-        _G._vm = "node"
+        _vm = "nodejs";
     }
 
     if (_G) {
@@ -26,9 +27,14 @@
                 value: _G,
                 configurable: false,
                 enumerable: false,
-                writable: false
-            }
+                writable: false,
+            },
+            _vm: {
+                value: _vm,
+                configurable: false,
+                enumerable: false,
+                writable: false,
+            },
         });
     }
 })();
-
