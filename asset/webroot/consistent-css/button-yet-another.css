@@ -1,0 +1,38 @@
+.button {
+  border: 1px solid #E8E8E8;
+  border-radius: 1px;
+  box-sizing: border-box;
+  color: #B3B3B3;
+  font-size: 22px;
+  height: 72px;
+  line-height: 72px;
+  opacity: 1;
+  position: relative;
+  text-align: center;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.button:active {
+  opacity: 0.7;
+}
+
+.button.red {
+  background-color: #EE3C26;
+  border: 1px solid #D22510;
+  color: #FFF;
+}
+
+.button.orange {
+  background-color: #F8A513;
+  border: 1px solid #D78C08;
+  color: #FFF;
+}
+
+.button.follower {
+  margin-top: 20px;
+}
+
+.buttonContainer {
+  margin: 0 50px 0 50px;
+}

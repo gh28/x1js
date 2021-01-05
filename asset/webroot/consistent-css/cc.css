@@ -1,0 +1,44 @@
+/**
+ * consistent css lib
+ *
+ * being component specific, not business specific
+ * ensure the scope be within the component
+ */
+
+@import url("cc-button.css");
+@import url("spinner.css");
+
+/* one-line class */
+
+.cc-display-inline { display: inline; }
+.cc-display-none { display: none; }
+.cc-clear-both { clear: both; }
+.cc-float-left { float: left; }
+.cc-float-right { float: right; }
+
+.cc-color-black { color: #000; }
+.cc-color-cyan { color: #0CC; }
+.cc-color-darkgray { color: #333; }
+.cc-color-green { color: #090; }
+.cc-color-gray { color: #666; }
+.cc-color-orange { color: #E47911; }
+.cc-color-red { color: #900; }
+
+.cc-text-size { font-size: 14px; }
+.cc-text-size-minor, .cc-text-size-small { font-size: 12px; }
+.cc-text-size-major, .cc-text-size-large { font-size: 18px; }
+.cc-text-size-huge { font-size: 24px; }
+.cc-text-size-mega { font-size: 30px; }
+.cc-text-size-giga { font-size: 42px; }
+
+/**** but ... business specific !!! ****/
+
+.item .title {
+  color: #333 !important;
+  font-weight: bold !important;
+}
+
+.item .price {
+  color: #900 !important;
+  font-weight: bold !important;
+}

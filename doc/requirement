@@ -1,0 +1,11 @@
+mvc
+  model, view, controller
+  model holds data and stands for business logic
+  view presents model to user via page
+  controller receives user request and changes model
+  module is to be invoked as independent or reusable widgit
+
+static file server
+  browser send url, server parse url, find the file in hdd.
+  if file exists, return 200 and send file;
+  if file doesn't exist, return 404
