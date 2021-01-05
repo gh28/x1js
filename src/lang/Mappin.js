@@ -13,7 +13,7 @@ _G.Mappin = function() {
 
 Mappin.clear = function() {
     const caller = this;
-    for (var i in caller.ownKeys()) {
+    for (var i in Mappin.ownKeys.call(caller)) {
         delete caller[i];
     }
 };
@@ -95,14 +95,6 @@ Mappin.merge = function() {
         }
     }
     return caller;
-};
-
-Mappin.unite = function(o) {
-    const caller = this;
-    var target = {};
-    Mappin.merge.call(target, caller);
-    Mappin.merge.call(target, o);
-    return target;
 };
 
 Mappin.intersect = function(o) {

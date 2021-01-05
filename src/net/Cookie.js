@@ -1,6 +1,6 @@
 "use strict";
 
-var Cookie = function(key, value) {
+const Cookie = function(key, value) {
     this.key = key;
     this.value = value;
     this.isSecure = 0;
@@ -63,7 +63,7 @@ Cookie.prototype.build = function() {
 
 var cookiesToSet = {};
 
-var setHeaderCookie = function(response) {
+function setHeaderCookie(response) {
     var s = "";
     for (var k in cookiesToSet) {
         s += cookiesToSet[k];
@@ -76,6 +76,4 @@ Cookie.prototype.addHeaderCookie = function(response) {
     setHeaderCookie(response);
 };
 
-if (module) {
-    module.exports = Cookie;
-}
+module.exports = Cookie;

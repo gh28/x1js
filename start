@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo $(cd `dirname $0`; pwd) '=>' $(dirname $(readlink -f $0))
+echo $(cd `dirname $BASH_SOURCE`; pwd) '=>' $(dirname $(readlink -f $BASH_SOURCE))
 
-cd `dirname $0`
-PATH=$PATH:./bin nodejs src/main.js --port=8090
+cd `dirname $BASH_SOURCE`
+PATH=$PATH:./bin:./build nodejs src/main.js --port=8090

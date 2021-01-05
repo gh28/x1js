@@ -4,11 +4,11 @@ const fs = require("fs");
 const iconv = require("iconv-lite");
 const zlib = require("zlib");
 
-const File = importjs("cc.typedef.io.File");
-const Path = importjs("cc.typedef.io.Path");
-const Mime = importjs("cc.typedef.net.Mime");
+const File = importjs("fenc.File");
+const Path = importjs("fenc.Path");
+const Mime = importjs("net.Mime");
 
-const Util = importjs("module.Util");
+const Util = importjs("net.Util");
 
 const Responder = function() {
 };

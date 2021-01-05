@@ -2,14 +2,14 @@
 
 const fs = importjs("fs");
 
-const Path = importjs("cc.typedef.io.Path");
+const Path = importjs("fenc.Path");
 
-const Responder = importjs("module.Responder");
+const Responder = importjs("net.Responder");
 
 function init(register, locate, pathConfig) {
     var storyMappin = {};
     var buffer = require('child_process').execSync(
-            "fnHash.sh " + locate(pathConfig["asset"], "story/story"));
+            "fnHash.sh " + locate(pathConfig["asset"], "story/done"));
     var lines = buffer.toString("utf8").split("\n");
     for (var i = 0; i < lines.length; ++i) {
         var line = lines[i];
@@ -52,7 +52,7 @@ function init(register, locate, pathConfig) {
             if (filepath) {
                 var sketch = fs.readFileSync(locate(pathConfig["webpage"], "story.skeleton.start.html"));
                 var content = require('child_process').execSync(
-                        "tx2html.py -f \"" + filepath + "\"");
+                        "txt2html.py \"" + filepath + "\"");
                 Responder.send(context, 200, "text/html",
                         sketch, "<div class=\"content\">", content, "</div></body></html>");
                 return true;

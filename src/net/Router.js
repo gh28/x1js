@@ -1,8 +1,10 @@
-var wildcard = require('wildcard');
+"use strict";
 
-function Router() {
+const wildcard = require('wildcard');
+
+const Router = function() {
     this.routeMap = [];
-}
+};
 
 function getKey(pattern) {
     return pattern || "/";
@@ -13,7 +15,7 @@ Router.prototype.addRule = function(pattern, handler) {
     var key = getKey(pattern);
     console.log("adding route [" + key + "]");
     this.routeMap.push([key, handler]);
-}
+};
 
 Router.prototype.route = function(context) {
     var path = context.uri.path;
@@ -33,6 +35,6 @@ Router.prototype.route = function(context) {
             }
         }
     }
-}
+};
 
 module.exports = Router;

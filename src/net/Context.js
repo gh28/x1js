@@ -1,9 +1,9 @@
 "use strict";
 
-const File = importjs("cc.typedef.io.File");
-const Uri = importjs("cc.typedef.net.Uri");
+const File = importjs("fenc.File");
+const Uri = importjs("net.Uri");
 
-function Context(request, response) {
+const Context = function(request, response) {
     Mappin.merge.call(this, {
         "req": request,
         "ack": response,

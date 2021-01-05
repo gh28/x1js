@@ -3,7 +3,6 @@
 
 import re as regex;
 import sys
-import gflags;
 
 def isHeading(line):
     if regex.match("^第.{1,5}(章|回|节|折)".decode("utf8"), line.decode("utf8")):
@@ -13,9 +12,8 @@ numTotalLines = 0;
 numEmptyLines = 0;
 meta = {};
 
-gflags.DEFINE_string("filepath", None, "", short_name="f");
-gflags.FLAGS(sys.argv)
-for line in open(gflags.FLAGS["filepath"].value):
+filepath=sys.argv[1]
+for line in open(filepath):
     numTotalLines += 1;
     line = line.strip();
     if (not line):

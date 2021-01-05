@@ -26,7 +26,7 @@ _G.isString = function(o) {
 
 _G.isVector = function(o) {
     return typeof(o) == "object" && o instanceof Array;
-}
+};
 
 _G.isMappin = function(o) {
     return typeof(o) == "object" && o !== null && !(o instanceof Array);
@@ -67,8 +67,3 @@ Object.defineProperties(Function.prototype, {
         }
     }
 });
-
-// 一些语言特性
-// function A() {}
-// var a = new A();
-// assert a.__proto__ == A.prototype;

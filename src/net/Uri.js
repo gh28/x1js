@@ -4,12 +4,32 @@
 
 // to parse uri(mostly url) into an object and reverse
 // see http://docs.oracle.com/javase/1.5.0/docs/api/java/net/URI.html
-var Uri = function() {
+const Uri = function() {
     this.source = undefined;
     this.scheme = undefined;
     this.schemeSpecificPart = undefined;
     this.fragment = undefined;
-}
+};
+
+Uri.isAbsolute = function() {
+    return !!this.scheme;
+};
+
+Uri.isRelative = function() {
+    return !this.isAbsolute();
+};
+
+// Opaque Uri is not subject to further parsing
+// mailto:java-net@java.sun.com
+// news:comp.lang.java
+// urn:isbn:096139210x
+Uri.isOpaque = function() {
+    return this.isAbsolute() && !this.schemeSpecificPart.startsWith("/");
+};
+
+Uri.isHierarchical = function() {
+    return !this.isOpaque();
+};
 
 // should be overridden to compose a specific scheme
 // e.g. http/mailto is different
@@ -48,30 +68,6 @@ Uri.toString = function() {
         s += "#" + caller.fragment;
     }
     return s;
-};
-
-Uri.isAbsolute = function() {
-    var caller = this;
-    return !!caller.scheme;
-};
-
-Uri.isRelative = function() {
-    var caller = this;
-    return !caller.isAbsolute();
-};
-
-// Opaque Uri is not subject to further parsing
-// mailto:java-net@java.sun.com
-// news:comp.lang.java
-// urn:isbn:096139210x
-Uri.isOpaque = function() {
-    var caller = this;
-    return caller.isAbsolute() && !caller.schemeSpecificPart.startsWith("/");
-};
-
-Uri.isHierarchical = function() {
-    var caller = this;
-    return !caller.isOpaque();
 };
 
 Uri.fromString = function(uriString) {

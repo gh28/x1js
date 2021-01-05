@@ -1,23 +1,22 @@
 "use strict";
 
 const fs = importjs("fs");
-
-const Path = importjs("cc.typedef.io.Path");
+const Path = importjs("fenc.Path");
 
 // a virtual file
-var File = function(path) {
+const File = function(path) {
     this.path = path && Path.normalize(path);
-}
+};
 
 File.prototype.getContent = function() {
     const caller = this;
     return fs.readFileSync(caller.path);
-}
+};
 
 File.prototype.getMeta = function() {
     const caller = this;
     return fs.statSync(caller.path);
-}
+};
 
 File.prototype.exists = function() {
     const caller = this;
@@ -31,6 +30,11 @@ File.prototype.exists = function() {
             throw e;
         }
     }
+};
+
+File.prototype.normalize = function(s) {
+    // TODO
+    return s;
 };
 
 File.prototype.save = function(s) {

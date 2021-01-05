@@ -2,20 +2,20 @@
 
 // class Session
 
-var Session = function(id, timeout) {
+const Session = function(id, timeout) {
     this.id = id;
     this.timeout = timeout || 5 * 60 * 1000; // 5min
     this.data = {};
     this.touch();
-}
+};
 
 Session.prototype.getId = function() {
     return this.id;
-}
+};
 
 Session.prototype.get = function(key) {
     return this.data[key];
-}
+};
 
 Session.prototype.put = function(key, value) {
     if (typeof value === "undefined") {
@@ -23,20 +23,20 @@ Session.prototype.put = function(key, value) {
     } else {
         this.data[key] = value;
     }
-}
+};
 
 Session.prototype.isExpired = function() {
     return this.ctime + this.timeout >= +new Date();
-}
+};
 
 Session.prototype.removeAll = function(key) {
     delete this.data;
     this.data = {};
-}
+};
 
 Session.prototype.touch = function() {
     this.ctime = +new Date();
-}
+};
 
 // class SessionManager
 
@@ -71,14 +71,12 @@ SessionManager.prototype.remove = function(sessionId) {
     delete this.sessions[sessionId];
 };
 
-if (module) {
-    var sessionManager = null;
-    module.exports = {
-        "getInstance": function() {
-            if (!sessionManager) {
-                sessionManager = new SessionManager(5 * 60 * 1000);
-            }
-            return sessionManager;
+var sessionManager = null;
+module.exports = {
+    "getInstance": function() {
+        if (!sessionManager) {
+            sessionManager = new SessionManager(5 * 60 * 1000);
         }
-    };
-}
+        return sessionManager;
+    }
+};

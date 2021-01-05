@@ -2,12 +2,12 @@
 
 "use strict";
 
-require("./cc/typedef/lang/fixNodejs.js");
+require("./lang/fixNodejs.js");
 
-const Path = importjs("cc.typedef.io.Path");
+const Path = importjs("fenc.Path");
 
-const Context = importjs("module.Context");
-const Router = importjs("module.Router");
+const Context = importjs("net.Context");
+const Router = importjs("net.Router");
 
 // prepare router
 const router = new Router();

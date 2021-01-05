@@ -1,5 +1,3 @@
-// so it is in nodejs
-
 "use strict";
 
 Object.defineProperties(global, {

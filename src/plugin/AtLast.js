@@ -1,8 +1,8 @@
 "use strict";
 
-const Path = importjs("cc.typedef.io.Path");
+const Path = importjs("fenc.Path");
 
-const Responder = importjs("module.Responder");
+const Responder = importjs("net.Responder");
 
 function init(register, locate, pathConfig) {
     register("/*", function(context) {
