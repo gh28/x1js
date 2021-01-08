@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
-TOP=$(realpath $(pwd)/$(dirname $0)/..)
+
+if [[ "$BASH_SOURCE" == /* ]]; then
+    TOP=$(realpath $(dirname $BASH_SOURCE)/..)
+else
+    TOP=$(realpath $(pwd)/$(dirname $BASH_SOURCE)/..)
+fi
+
 mkdir -p $TOP/out
 cat > $TOP/out/demo.html << EOF
 <?xml version="1.0" encoding="UTF-8"?>
@@ -7,23 +13,8 @@ cat > $TOP/out/demo.html << EOF
 <head>
     <title>demo</title>
     <script type="text/javascript">
-`#uglifyjs -c properties,dead_code,collapse_vars -m -- \
-    $TOP/x1js/src/x1.js \
-    $TOP/x1js/src/_G.js \
-    $TOP/x1js/src/Proto.js \
-    $TOP/x1js/src/Package.js \
-    $TOP/x1js/src/Cstring.js \
-    $TOP/x1js/src/Cmap.js \
-    $TOP/x1js/src/P.js \
-`
 `cat \
-    $TOP/x1js/src/x1.js \
-    $TOP/x1js/src/_G.js \
-    $TOP/x1js/src/Proto.js \
-    $TOP/x1js/src/Package.js \
-    $TOP/x1js/src/Cstring.js \
-    $TOP/x1js/src/Cmap.js \
-    $TOP/x1js/src/P.js \
+    $TOP/out/embedded.min.js \
 `
     </script>
 </head>

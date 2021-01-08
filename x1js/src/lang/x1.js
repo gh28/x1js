@@ -1,8 +1,6 @@
 "use strict";
 
-/**
- * facility
- */
+// facility
 (function(_G) {
 
     _G.isVoid = function(o) {
@@ -13,16 +11,18 @@
         return typeof(o) === "number";
     };
 
-    _G.isFunction = function(o) {
+    // it seems "function" means global function while "method" means member method
+    // use "callable"
+    _G.isCallable = function(o) {
         return typeof(o) === "function";
     };
-    _G.isCallable = isFunction;
 
     _G.isString = function(o) {
         return typeof(o) === "string";
     };
 
     _G.isList = function(o) {
+        // return typeof(o) == "object" && o instanceof Array;
         return Object.prototype.toString.call(o) === "[object Array]";
     };
 

@@ -26,11 +26,13 @@ const Cstring = (function() {
         return s.substring(s.length - s1.length) === s;
     };
 
-    Cstring.compareTo = function(s, s1) {
+    Cstring.compare = function(s, s1) {
         if (s === s1)  {
             return 0;
         }
-        if (s1 === undefined || s1 === null) {
+        if (s === undefined || s === null) {
+            return -1;
+        } else if (s1 === undefined || s1 === null) {
             return 1;
         }
         return s < s1 ? -1 : 1;

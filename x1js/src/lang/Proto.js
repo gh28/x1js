@@ -1,12 +1,6 @@
 "use strict";
 
-/**
- * what i call "struct-based design":
- *  - proto is an object rather than a function and contains constructors
- *  - proto's functions can be any object's "member methods", as long as the object has necessary member variables
- *
- * proto system
- */
+// proto is an object rather than a function and contains constructors
 (function(_G) {
 
     function isProto(p) {

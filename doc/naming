@@ -1,0 +1,11 @@
+naming convention for html css js
+
+file naming
+package: lowerCamelCase
+class: UpperCamelCase.js
+business module: lower-with-hyphen.html
+
+file inside
+indent: 4 SP for html/css/js/sh
+file encoding: utf8
+line ending: LF, including the last line if file is not empty

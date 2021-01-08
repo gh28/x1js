@@ -1,5 +1,8 @@
+"use strict";
+
 /**
  * P the dependency resolver and post-loader
+ * need _G
  */
 (function(_G) {
 
@@ -58,7 +61,7 @@
                 });
             }
             document.head.append(newScript);
-        } else if (_G._vm === "node") {
+        } else if (_G._vm === "nodejs") {
             // no will to violate rules of server-side js, but be prepared for all contingencies
             var o = require(uri);
             onLoad(o);

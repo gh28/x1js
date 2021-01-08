@@ -1,8 +1,6 @@
 "use strict";
 
-/**
- * package system
- */
+// package system
 (function(_G) {
 
     function isDottedIdentifier(s) {
@@ -19,8 +17,9 @@
             if (typeof ns[ai] === "undefined") {
                 if (createIfNotExist) {
                     ns[ai] = {};
+                    ns = ns[ai];
                 } else {
-                    throw "E: package name not exist";
+                    return undefined;
                 }
             } else if (isObject(ns[ai])) {
                 ns = ns[ai];
@@ -31,25 +30,45 @@
         return ns;
     }
 
-    function importProto(id) {
-        assert(isDottedIdentifier(id));
-        var a = id.split(".");
+    if (_G._vm == "nodejs") {
+        function importByPath(pathLike) {
+            assert(isString(pathLike) && pathLike.length > 0, "E: invalid argument");
+            if (pathLike.indexOf("/") >= 0) {
+                // as a file path it must starts with "./" or "/"
+                // dummy
+            } else if (pathLike.indexOf(".") >= 0) {
+                // package
+                // assume: working from project root
+                // assume: sources in package hierarchy just under "src"
+                pathLike = pathLike.split(".").join("/") + ".js";
+            } else {
+                // nodejs platform library e.g. "fs"
+                // dummy
+            }
+            return require(pathLike);
+        }
+        _G.importByPath = importByPath;
+    }
+
+    function importProto(protoId) {
+        assert(isDottedIdentifier(protoId));
+        var a = protoId.split(".");
         var basename = a.pop();
         var ns = getPackage(a);
-        if (!isObject(ns)) {
+        if (!ns) {
             throw "E: no such package";
-        }
-        if (!isProto(ns[basename])) {
+        } else if (!isProto(ns[basename])) {
             // would sleep and start loading (via filesystem or network) and awake when loading done
             // but there is no such mechanism in js
             throw "E: no such proto";
+        } else {
+            return ns[basename];
         }
-        return ns[basename];
     }
     _G.importProto = importProto;
 
-    function exportProto(id, proto) {
-        var a = id.split(".");
+    function exportProto(protoId, proto) {
+        var a = protoId.split(".");
         var basename = a.pop();
         var ns = getPackage(a, true);
         if (typeof ns[basename] !== "undefined") {
