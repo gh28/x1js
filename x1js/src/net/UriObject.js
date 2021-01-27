@@ -124,7 +124,7 @@ const UriObject = (function() {
             uri.pass = captured[3];
         }
 
-        uri.query = Mappin.fromOneLine.call({}, uri.query || "", "&", "=");
+        uri.query = Cmap.fromString(uri.query || "", "&", "=");
 
         // test: "//user:pass@host:port/path?query"
         // test: "///usr/local/bin/aaa"
@@ -134,3 +134,7 @@ const UriObject = (function() {
 
     return Uri;
 })();
+
+if (_G._vm == "nodejs") {
+    module.exports = UriObject;
+}

@@ -1,6 +1,6 @@
 "use strict";
 
-const Cstring = (function() {
+_G.Cstring = (function() {
 
     var Cstring = Object.create(null);
 

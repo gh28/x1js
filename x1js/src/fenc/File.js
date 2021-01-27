@@ -7,9 +7,9 @@ const File = (function() {
     File.normalize = function(path) {
         return Path.normalize(path);
     };
-    
+
     if (_G._vm == "nodejs") {
-        const fs = importjs("fs");
+        const fs = require("fs");
 
         File.getContent = function(path) {
             return fs.readFileSync(path);
@@ -20,6 +20,9 @@ const File = (function() {
         };
 
         File.exists = function(path) {
+            if (!path) {
+                return false;
+            }
             try {
                 fs.statSync(path);
                 return true;
@@ -39,3 +42,7 @@ const File = (function() {
 
     return File;
 })();
+
+if (_G._vm == "nodejs") {
+    module.exports = File;
+}

@@ -5,7 +5,7 @@ const Timer = (function() {
     var Timer = newProto();
 
     Timer._setCallback = function(callback) {
-        if (!isFunction(callback)) {
+        if (!isCallable(callback)) {
             throw "E: invalid argument: function expected: " + Object.prototype.toString.call(callback);
         }
         this._callback = callback;
@@ -28,7 +28,7 @@ const Timer = (function() {
         }
         this._times = times;
     };
-    
+
     Timer._setInterval = function() {
         this._count = 0;
         this._intervalToken = setInterval(function() {
@@ -44,7 +44,7 @@ const Timer = (function() {
         clearInterval(this._intervalToken);
         this._intervalToken = null;
     };
-    
+
     Timer.isRunning = function() {
         return !isVoid(this._intervalToken);
     };
@@ -74,7 +74,7 @@ const Timer = (function() {
     };
 
     Timer.reschedule = function() {
-        if (!isFunction(this._callback) || !isNumber(this._delay) || !isNumber(this._times)) {
+        if (!isCallable(this._callback) || !isNumber(this._delay) || !isNumber(this._times)) {
             throw "E: timer is not configured";
         }
         this.stop();

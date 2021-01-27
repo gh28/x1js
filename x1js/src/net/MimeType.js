@@ -38,3 +38,7 @@ const MimeType = (function() {
         getMimeTypeByPath: getMimeTypeByPath,
     }
 })();
+
+if (_G._vm == "nodejs") {
+    module.exports = MimeType;
+}

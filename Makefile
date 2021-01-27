@@ -1,9 +1,10 @@
 .PHONY: all
 all:
-	@bash build/make-minjs.sh
-	@bash build/make-demo.sh
+	@bash x1js/build/build.sh
+	@bash FileServer/build/build.sh
 
 .PHONY: clean
 clean:
 	@echo "cleaning ..."
-	@rm -rf ./out
+	@rm -rf x1js/out
+	@rm -rf FileServer/out

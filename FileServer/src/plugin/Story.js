@@ -1,15 +1,15 @@
 "use strict";
 
-const fs = importjs("fs");
+const fs = loadjs("fs");
 
-const Path = importjs("fenc.Path");
+const Path = loadjs("fenc.Path");
 
-const Responder = importjs("net.Responder");
+const Responder = loadjs("net.Responder");
 
 function init(register, locate, pathConfig) {
     var storyMappin = {};
     var buffer = require('child_process').execSync(
-            "fnHash.sh " + locate(pathConfig["asset"], "story/done"));
+            "bash fnHash.sh " + locate(pathConfig["asset"], "story/done"));
     var lines = buffer.toString("utf8").split("\n");
     for (var i = 0; i < lines.length; ++i) {
         var line = lines[i];
@@ -52,7 +52,7 @@ function init(register, locate, pathConfig) {
             if (filepath) {
                 var sketch = fs.readFileSync(locate(pathConfig["webpage"], "story.skeleton.start.html"));
                 var content = require('child_process').execSync(
-                        "txt2html.py \"" + filepath + "\"");
+                        "python3 txt2html.py \"" + filepath + "\"");
                 Responder.send(context, 200, "text/html",
                         sketch, "<div class=\"content\">", content, "</div></body></html>");
                 return true;

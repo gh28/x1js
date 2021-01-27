@@ -4,11 +4,11 @@ const fs = require("fs");
 const iconv = require("iconv-lite");
 const zlib = require("zlib");
 
-const File = importjs("fenc.File");
-const Path = importjs("fenc.Path");
-const Mime = importjs("net.Mime");
+const File = loadjs("fenc.File");
+const Path = loadjs("fenc.Path");
+const MimeType = loadjs("net.MimeType");
 
-const Util = importjs("net.Util");
+const Util = loadjs("net.Util");
 
 const Responder = function() {
 };
@@ -57,10 +57,9 @@ Responder.send = function(context, statusCode, mimeType, etc) {
  * read file content and send via file stream
  */
 Responder.sendFile = function(context, path, mimeType) {
-    var file = new File(path);
     var meta = null;
     try {
-        meta = file.getMeta();
+        meta = File.getMeta(path);
     } catch (e) {
         console.log(e.message);
         Responder.send(context, 404);
@@ -93,12 +92,12 @@ Responder.sendFile = function(context, path, mimeType) {
 
     // content-type defaults to "text/plain"
     // if the content cannot be parsed as text, the browser will save content to file
-    mimeType = mimeType || Mime.getMimeTypeByPath(file.path) || "text/plain";
-    console.log("about to send [" + file.path + "] as [" + mimeType + "]" );
+    mimeType = mimeType || MimeType.getMimeTypeByPath(path) || "text/plain";
+    console.log("about to send [" + path + "] as [" + mimeType + "]" );
 
     headers["accept-ranges"] = "bytes";
 
-    var fn = iconv.encode(Path.basename(file.path), "iso8859-1");
+    var fn = iconv.encode(Path.basename(path), "iso8859-1");
     if (context.getReqHeader("accept-attachment")) {
         headers["content-disposition"] = "attachment;filename=" + fn;
         headers["content-type"] = "application/octet-stream";
@@ -121,13 +120,13 @@ Responder.sendFile = function(context, path, mimeType) {
     var statusCode;
     if (context.current.aRange) {
         statusCode = 206;
-        var stream = fs.createReadStream(file.path, {
+        var stream = fs.createReadStream(path, {
             "start": aRange[0],
             "end": aRange[1]
         });
     } else {
         statusCode = 200;
-        var stream = fs.createReadStream(file.path);
+        var stream = fs.createReadStream(path);
     }
     if (context.current.allowsCompressing) {
         var sEncodings = context.getReqHeader("accept-encoding") || "";

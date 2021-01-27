@@ -1,8 +1,8 @@
 "use strict";
 
-const Path = importjs("fenc.Path");
+const Path = loadjs("fenc.Path");
 
-const Responder = importjs("net.Responder");
+const Responder = loadjs("net.Responder");
 
 function init(register, locate, pathConfig) {
     register("/*", function(context) {
@@ -12,7 +12,7 @@ function init(register, locate, pathConfig) {
             context.req.addListener("data", function(chunk) {
                 chunks.push(chunk);
                 length += chunk.length;
-                logd("Received data chunk: " + chunk);
+                logi("Received data chunk: " + chunk);
             });
             context.req.addListener("end", function() {
                 var postedData = new Buffer(length);

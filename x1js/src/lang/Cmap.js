@@ -5,7 +5,7 @@
 
 // in javascript, Object is too wide a thing
 // let's narrow it down as a dictionary/map/table
-const Cmap = (function() {
+_G.Cmap = (function() {
 
     const Cmap = Object.create(null);
 

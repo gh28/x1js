@@ -1,13 +1,11 @@
-#!/usr/bin/env node
-
 "use strict";
 
-require("./lang/fixNodejs.js");
+require("./_G.min.js");
+require("./x1.min.js");
 
-const Path = importjs("fenc.Path");
-
-const Context = importjs("net.Context");
-const Router = importjs("net.Router");
+const Path = loadjs("fenc.Path");
+const Context = loadjs("net.Context");
+const Router = loadjs("net.Router");
 
 // prepare router
 const router = new Router();
@@ -22,11 +20,11 @@ const router = new Router();
     }
 
     const config = Context.loadConfig(locate);
-    logd("using config: " + JSON.stringify(config));
+    logi("using config: " + JSON.stringify(config));
 
     for (var i in arguments) {
         var item = arguments[i];
-        importjs(item).init(register, locate, config.path);
+        loadjs(item).init(register, locate, config.path);
     }
 })(
     "plugin.Sentinel",
@@ -42,5 +40,5 @@ require("http").createServer(function(request, response) {
     router.route(context);
     return;
 }).listen(PORT);
-logd("Listening at " + PORT);
-logd("...");
+logi("Listening at " + PORT);
+logi("...");

@@ -1,8 +1,8 @@
 "use strict";
 
-const Path = importjs("fenc.Path");
+const Path = loadjs("fenc.Path");
 
-const Responder = importjs("net.Responder");
+const Responder = loadjs("net.Responder");
 
 function init(register, locate, pathConfig) {
     register(/^\/sentinel$|^\/watchdog$/, function(context) {

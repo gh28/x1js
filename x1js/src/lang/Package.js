@@ -31,7 +31,7 @@
     }
 
     if (_G._vm == "nodejs") {
-        function importByPath(pathLike) {
+        function loadjs(pathLike) {
             assert(isString(pathLike) && pathLike.length > 0, "E: invalid argument");
             if (pathLike.indexOf("/") >= 0) {
                 // as a file path it must starts with "./" or "/"
@@ -39,20 +39,20 @@
             } else if (pathLike.indexOf(".") >= 0) {
                 // package
                 // assume: working from project root
-                // assume: sources in package hierarchy just under "src"
-                pathLike = pathLike.split(".").join("/") + ".js";
+                pathLike = "./" + pathLike.split(".").join("/") + ".js";
             } else {
                 // nodejs platform library e.g. "fs"
                 // dummy
             }
+            // "require" itself has cache
             return require(pathLike);
         }
-        _G.importByPath = importByPath;
+        _G.loadjs = loadjs;
     }
 
-    function importProto(protoId) {
-        assert(isDottedIdentifier(protoId));
-        var a = protoId.split(".");
+    function loadFromFullId(fullId) {
+        assert(isDottedIdentifier(fullId));
+        var a = fullId.split(".");
         var basename = a.pop();
         var ns = getPackage(a);
         if (!ns) {
@@ -65,10 +65,10 @@
             return ns[basename];
         }
     }
-    _G.importProto = importProto;
+    _G.loadFromFullId = loadFromFullId;
 
-    function exportProto(protoId, proto) {
-        var a = protoId.split(".");
+    function saveToFullId(proto, fullId) {
+        var a = fullId.split(".");
         var basename = a.pop();
         var ns = getPackage(a, true);
         if (typeof ns[basename] !== "undefined") {
@@ -76,5 +76,5 @@
         }
         ns[basename] = proto;
     };
-    _G.exportProto = exportProto;
+    _G.saveToFullId = saveToFullId;
 })(_G);

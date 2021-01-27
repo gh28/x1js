@@ -1,7 +1,7 @@
 "use strict";
 
 // static
-const Path = (function() {
+_G.Path = (function() {
 
     var Path = newProto(null);
 
@@ -27,12 +27,12 @@ const Path = (function() {
     function path2segs(path) {
         return path.split("/");
     }
-    
+
     Path.basename = function(s) {
         var segs = path2segs(s);
         return segs[segs.length - 1];
     };
-    
+
     Path.normalize = function(s) {
         var segments = path2segs(s);
         switch (segments[0]) {
@@ -46,7 +46,7 @@ const Path = (function() {
                 segments.unshift(".");
                 break;
         }
-    
+
         for (var i = 1; i < segments.length;) {
             switch (segments[i]) {
                 case "":
@@ -77,7 +77,7 @@ const Path = (function() {
         }
         return segments.join("/");
     };
-    
+
     Path.relativizeTo = function(base, combined) {
         if (Path.isAbsolute(base) != Path.isAbsolute(combined)) {
             return combined;
@@ -85,7 +85,7 @@ const Path = (function() {
 
         var src = path2segs(Path.normalize(base));
         var dst = path2segs(Path.normalize(combined));
-    
+
         var start = 0;
         while (start < dst.length && start < src.length) {
             if (dst[start] != src[start]) {
@@ -95,12 +95,12 @@ const Path = (function() {
         }
         dst.slice(start);
         src.slice(start);
-    
+
         src.fill("..");
         src.concat(dst);
         return src.join("/");
     };
-    
+
     Path.resolve = function(s) {
         var relatives = Array.prototype.slice.call(arguments);
         for (var i in relatives) {
@@ -113,3 +113,7 @@ const Path = (function() {
 
     return Path;
 })();
+
+if (_G._vm == "nodejs") {
+    module.exports = Path;
+}

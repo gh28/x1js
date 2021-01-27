@@ -4,7 +4,7 @@
 (function(_G) {
 
     function isProto(p) {
-        return isObject(p) && isFunction(p._ctor) && isFunction(p.malloc);
+        return isObject(p) && isCallable(p._ctor) && isCallable(p.malloc);
     }
     _G.isProto = isProto;
 
@@ -26,7 +26,7 @@
         }
         if (isVoid(ctor)) {
             ctor = dummy;
-        } else if (!isFunction(ctor)) {
+        } else if (!isCallable(ctor)) {
             throw "E: invalid argument: function expected";
         }
 
@@ -46,7 +46,7 @@
             var args = Array.prototype.slice.apply(arguments);
             while (stack.length > 0) {
                 var p = stack.pop();
-                if (isFunction(p._ctor)) {
+                if (isCallable(p._ctor)) {
                     p._ctor.apply(o, args);
                 }
             }
